@@ -14,7 +14,7 @@
 module upperModule_tb(
     );
 
-    wire signal_square_100hz;
+    wire signal_square_100hz, signal_100hz;
     reg simclk;
     wire inp_clk;
     reg [7:0] switch;
@@ -40,6 +40,8 @@ module upperModule_tb(
     
     assign switches = switch;
     assign inp_clk = (simclk==1'b1);
+    
+    clk_100hz clk100( .FPGAclk(inp_clk), .signal(signal_100hz) );
     
     upperModule upper ( .clk(inp_clk), 
                         .sw(switches), 
