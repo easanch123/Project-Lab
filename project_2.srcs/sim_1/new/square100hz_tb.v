@@ -45,6 +45,6 @@ module square100hz_tb(
     
     clk25khz clk25k (.FPGAclk(clk), .signal(signal_25khz));
     clk_100hz clk100 (.FPGAclk(clk), .signal(signal_100hz));
-    square100hz square (.switches(switches), .clk100hz(signal_100hz), .clk25khz(signal_25khz), .squarePulse100hz(signal_square_100hz));
+    square100hz square (.switches(switches), .clk25khz(signal_25khz), .squarePulse100hz(signal_square_100hz));
     
 endmodule

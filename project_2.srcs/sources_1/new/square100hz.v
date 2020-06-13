@@ -13,7 +13,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 module square100hz(
     input wire [7:0] switches,
-    input wire clk100hz,
     input wire clk25khz,
     output wire squarePulse100hz
     );
