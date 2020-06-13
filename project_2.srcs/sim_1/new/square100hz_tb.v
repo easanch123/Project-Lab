@@ -1,25 +1,16 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
 // 
-// Create Date: 06/12/2020 12:39:17 PM
-// Design Name: 
+// Company: Texas Tech University 
+// Engineer: Edward Sanchez
+// 
+// Create Date: 06/12/2020 08:51:59 AM
+// Design Name: Square Pulse
 // Module Name: square100hz_tb
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
+// Project Name: Project Lab Mini Project
+// Target Devices: FPGA Basys3
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
-
 module square100hz_tb(
         
 

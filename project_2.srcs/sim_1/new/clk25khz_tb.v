@@ -1,25 +1,16 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
 // 
-// Create Date: 06/12/2020 09:10:20 AM
-// Design Name: 
+// Company: Texas Tech University 
+// Engineer: Edward Sanchez
+// 
+// Create Date: 06/12/2020 08:51:59 AM
+// Design Name: Square Pulse
 // Module Name: clk25khz_tb
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
+// Project Name: Project Lab Mini Project
+// Target Devices: FPGA Basys3
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
-
 module clk25khz_tb(
 
     );
