@@ -26,7 +26,7 @@ module clk25khz(
     begin
     if (counter==MAX_COUNT) begin
        counter<=11'd0;
-       newClk=~newClk;
+       newClk<=~newClk;
     end else begin
        counter<= counter+11'd1;
     end
