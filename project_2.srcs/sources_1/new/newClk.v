@@ -7,34 +7,36 @@
 // 
 // Create Date: 06/12/2020 08:51:59 AM
 // Design Name: Square Pulse
-// Module Name: clk_100hz
+// Module Name: newClk
 // Project Name: Project Lab Mini Project
 // Target Devices: FPGA Basys3
 // 
 //////////////////////////////////////////////////////////////////////////////////
-module clk_100hz(
+
+
+module newClk(
     input wire FPGAclk,
     output wire signal
     );
     
-    reg [18:0] counter;
+    parameter MAX_COUNT = 1; // 1961
+    
+    reg [ $clog2(MAX_COUNT) : 0 ] counter;
     reg newClk;
-
-    parameter [18:0] MAX_COUNT = 500000;
    
     always @(posedge FPGAclk)
     begin
     if (counter==MAX_COUNT) begin
-       counter<=19'd0;
+       counter<=0;
        newClk=~newClk;
     end else begin
-       counter<= counter+19'd1;
+       counter<= counter+1;
     end
     end
     
     initial begin
-    counter = 19'd0;
-    newClk = 1'd0;
+    counter = 0;
+    newClk = 0;
     end
     
     assign signal = newClk;

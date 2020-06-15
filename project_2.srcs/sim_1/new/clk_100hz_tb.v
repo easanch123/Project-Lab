@@ -17,6 +17,7 @@ module clk_100hz_tb(
     
     wire signal;
     reg simclk;
+    wire altSignal;
     wire clk;
     
     always begin
@@ -31,5 +32,6 @@ module clk_100hz_tb(
     assign clk = (simclk==1'b1);
     
     clk_100hz clk100 (.FPGAclk(clk), .signal(signal));
+    newClk #(500000) clkNew (.FPGAclk(clk), .signal(altSignal));
     
 endmodule

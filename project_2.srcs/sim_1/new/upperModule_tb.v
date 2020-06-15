@@ -43,6 +43,7 @@ module upperModule_tb(
     
     clk_100hz clk100( .FPGAclk(inp_clk), .signal(signal_100hz) );
     
+    
     upperModule upper ( .clk(inp_clk), 
                         .sw(switches), 
                         .ioPin(signal_square_100hz));
