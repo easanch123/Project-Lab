@@ -19,7 +19,7 @@ module upperModule(
     
     wire clk25khz;
     
-    newClk #(1961) clkNew (.FPGAclk(clk), .signal(clk25khz));
+    newClk #(1953) clkNew (.FPGAclk(clk), .signal(clk25khz));
     square100hz square (.switches(sw), .clk25khz(clk25khz), .squarePulse100hz(ioPin));
     
 endmodule

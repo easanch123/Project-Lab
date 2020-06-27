@@ -25,9 +25,9 @@ module square100hz(
     
            
     initial begin
-        squarePulse = 1'd1;
+        squarePulse = 1'd0;
         counter = 8'd0;
-        countCeiling = 8'b10000000;
+        countCeiling = switches;
         rst = 1'd1;
     end
  
@@ -35,9 +35,8 @@ module square100hz(
     always @(posedge clk25khz)
     begin
     
-    if (switches!=countCeiling) begin
+    if (switches!=countCeiling && rst!=1'b1) begin
         rst <= 1'b1;
-        countCeiling<=switches;
     end
     
     if (rst!=1'd1) begin
@@ -55,6 +54,7 @@ module square100hz(
         counter <= 8'd0;
         squarePulse <= 1'd1;
         rst <= 1'd0;
+        countCeiling<=switches;
         
     end
     end 

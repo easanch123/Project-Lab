@@ -1,17 +1,27 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
 // 
-// Company: Texas Tech University 
-// Engineer: Edward Sanchez
+// Create Date: 06/19/2020 01:27:59 PM
+// Design Name: 
+// Module Name: upperModule_tb_change
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
 // 
-// Create Date: 06/12/2020 08:51:59 AM
-// Design Name: Square Pulse
-// Module Name: upperModule_tb
-// Project Name: Project Lab Mini Project
-// Target Devices: FPGA Basys3
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-module upperModule_tb(
+
+
+module upperModule_tb_change(
+
     );
 
     wire signal_square_100hz;
@@ -25,6 +35,10 @@ module upperModule_tb(
     reg [7:0] countCeiling;
     reg squarePulse;
     reg rst;
+    
+    reg [7:0] changeCounter;
+    wire changeClk;
+    reg changeClkOut;
     
     always begin
 
@@ -43,9 +57,41 @@ module upperModule_tb(
     counter = 8'd0;
     countCeiling = 8'b10000000;
     rst = 1'd1;
+    
+    changeCounter = 0;
+    changeClkOut = 0;
     end
     
-    newClk #(1961) clkNew (.FPGAclk(inp_clk), .signal(clk25khz));
+    newClk #(1953) clkNew (.FPGAclk(inp_clk), .signal(clk25khz));
+    newClk #(29402) clkNews (.FPGAclk(inp_clk), .signal(changeClk));
+    
+    always @(posedge changeClk) begin
+    
+    changeCounter <= changeCounter + 1;
+    
+    if (changeCounter==30) begin
+        switches<= switches + 20;
+    end
+    
+    if (changeCounter==60) begin
+    switches<= switches - 50;
+    end
+    
+    if (changeCounter==90) begin
+    switches<= switches - 50;
+    end
+    
+    if (changeCounter==120) begin
+    switches<= switches + 200;
+    end
+    
+    if (changeCounter==150) begin
+    switches<= 0;
+    changeCounter<=0;
+    end
+    
+    end
+    
     
     always @(posedge clk25khz)
     begin
@@ -78,3 +124,4 @@ module upperModule_tb(
    
    
 endmodule
+
