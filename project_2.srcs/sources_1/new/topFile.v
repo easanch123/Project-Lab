@@ -26,11 +26,8 @@ module topFile(
     
     wire clk;
     wire [2:0] state;
-    wire [2:0] currentState;
     
-    assign currentState = state;
-    
-    setState settingState (.clk(clk), .currentState(currentState), .state(state) );
+    setState settingState (.clk(clk), .state(state) );
     executeState executingState (.clk(clk), .state(state));
     
 endmodule

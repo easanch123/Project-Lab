@@ -21,8 +21,7 @@
 
 
 module setState(
-    input wire clk,
-    input wire [2:0] currentState,
+    input wire clk,    
     output wire [2:0] state
     );
     
