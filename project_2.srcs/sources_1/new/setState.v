@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 06/27/2020 04:16:02 PM
+// Create Date: 06/27/2020 04:28:26 PM
 // Design Name: 
-// Module Name: top
+// Module Name: setState
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,18 +20,20 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module top(
+module setState(
     input wire clk,
-    input wire [2:0] state
+    input wire [2:0] currentState,
+    output wire [2:0] state
     );
     
     wire [2:0] sensorState;
+    wire [2:0] remoteState;
     
-    
-    always @(clk) begin
-    
-        executeState setting (  .clk(clk), .sensorState(sensorState), .state(state) );
-                             
-    end
+    stateSensors sensorsState ( .clk(clk),
+                                .stateOutput(sensorState) );
+                                
+    stateRemote stateRemote (   .clk(clk),
+                                 .sensorState(sensorState),
+                                 .stateOutput(state) );
     
 endmodule

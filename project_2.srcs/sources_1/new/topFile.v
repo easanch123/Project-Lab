@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 06/27/2020 04:16:02 PM
+// Create Date: 06/27/2020 04:35:59 PM
 // Design Name: 
-// Module Name: top
+// Module Name: topFile
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,18 +20,17 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module top(
-    input wire clk,
-    input wire [2:0] state
+module topFile(
+
     );
     
-    wire [2:0] sensorState;
+    wire clk;
+    wire [2:0] state;
+    wire [2:0] currentState;
     
+    assign currentState = state;
     
-    always @(clk) begin
-    
-        executeState setting (  .clk(clk), .sensorState(sensorState), .state(state) );
-                             
-    end
+    setState settingState (.clk(clk), .currentState(currentState), .state(state) );
+    executeState executingState (.clk(clk), .state(state));
     
 endmodule

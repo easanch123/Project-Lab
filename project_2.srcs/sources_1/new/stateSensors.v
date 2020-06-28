@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 06/27/2020 04:16:02 PM
+// Create Date: 06/27/2020 04:38:53 PM
 // Design Name: 
-// Module Name: top
+// Module Name: stateSensors
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,18 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module top(
-    input wire clk,
-    input wire [2:0] state
+module stateSensors(
+       input wire clk,
+       output wire stateOutput
     );
-    
-    wire [2:0] sensorState;
-    
-    
-    always @(clk) begin
-    
-        executeState setting (  .clk(clk), .sensorState(sensorState), .state(state) );
-                             
-    end
-    
 endmodule
