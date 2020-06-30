@@ -21,13 +21,32 @@
 
 
 module topFile(
-
+    input wire clk,
+    input wire L, M, R,
+    output wire ENA, ENB, IN1, IN2, IN3, IN4
     );
     
-    wire clk;
     wire [2:0] state;
+    wire enable;
+    wire velocity;
     
-    setState settingState (.clk(clk), .state(state) );
-    executeState executingState (.clk(clk), .state(state));
-    
+    setState stateSet ( .clk(clk),
+                        .L(L),
+                        .R(R),
+                        .M(M),
+                        .state(state),
+                        .velocity(velocity),
+                        .enable(enable) );
+                                 
+    executeState executingState (   .clk(clk), 
+                                    .state(state),
+                                    .enable(enable),
+                                    .velocity(velocity),
+                                    .ENA(ENA),
+                                    .ENB(ENB),
+                                    .IN1(IN1),
+                                    .IN2(IN2),
+                                    .IN3(IN3),
+                                    .IN4(IN4) ) ;
+
 endmodule

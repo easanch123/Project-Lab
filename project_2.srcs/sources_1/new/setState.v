@@ -22,17 +22,27 @@
 
 module setState(
     input wire clk,    
-    output wire [2:0] state
+    input wire L, M, R,
+    output wire [2:0] state,
+    output wire velocity,
+    output wire enable
     );
     
-    wire [2:0] sensorState;
-    wire [2:0] remoteState;
+    wire [1:0] sensorState;
+    wire motorEn;
     
     stateSensors sensorsState ( .clk(clk),
-                                .stateOutput(sensorState) );
-                                
-    stateRemote stateRemote (   .clk(clk),
-                                 .sensorState(sensorState),
-                                 .stateOutput(state) );
+                                .L(L),
+                                .R(R),
+                                .M(M),
+                                .motorEnable(motorEn),
+                                .velocity(velocity),
+                                .sensorState(sensorState),
+                                .enable(enable) );
+                                 
+    sensorStateDecoder decoder (    .sensorState(sensorState), 
+                                    .state(state),
+                                    .en(motorEn),
+                                    .enable(enable) );
     
 endmodule

@@ -33,23 +33,23 @@ set_property PACKAGE_PIN W5 [get_ports clk]
 	#set_property IOSTANDARD LVCMOS33 [get_ports {sw[10]}]
 #set_property PACKAGE_PIN R3 [get_ports {sw[11]}]					
 #	set_property IOSTANDARD LVCMOS33 [get_ports {sw[11]}]
-set_property PACKAGE_PIN W2 [get_ports {sw12}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {sw12}]
-set_property PACKAGE_PIN U1 [get_ports {sw13}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {sw13}]
-set_property PACKAGE_PIN T1 [get_ports {sw14}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {sw14}]
-set_property PACKAGE_PIN R2 [get_ports {sw15}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {sw15}]
+#set_property PACKAGE_PIN W2 [get_ports {sw12}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {sw12}]
+#set_property PACKAGE_PIN U1 [get_ports {sw13}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {sw13}]
+#set_property PACKAGE_PIN T1 [get_ports {sw14}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {sw14}]
+#set_property PACKAGE_PIN R2 [get_ports {sw15}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {sw15}]
  
 
 # LEDs
-#set_property PACKAGE_PIN U16 [get_ports {io_Out}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {io_Out}]
-#set_property PACKAGE_PIN E19 [get_ports {led[1]}]					
-	#set_property IOSTANDARD LVCMOS33 [get_ports {led[1]}]
-#set_property PACKAGE_PIN U19 [get_ports {led[2]}]					
-	#set_property IOSTANDARD LVCMOS33 [get_ports {led[2]}]
+set_property PACKAGE_PIN U16 [get_ports {LED1}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {LED1}]
+set_property PACKAGE_PIN E19 [get_ports {LED2}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {LED2}]
+set_property PACKAGE_PIN U19 [get_ports {LED3}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {LED3}]
 #set_property PACKAGE_PIN V19 [get_ports {led[3]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {led[3]}]
 #set_property PACKAGE_PIN W18 [get_ports {led[4]}]					
@@ -68,14 +68,14 @@ set_property PACKAGE_PIN R2 [get_ports {sw15}]
 	#set_property IOSTANDARD LVCMOS33 [get_ports {led[10]}]
 #set_property PACKAGE_PIN U3 [get_ports {led[11]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {led[11]}]
-set_property PACKAGE_PIN P3 [get_ports {LED12}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {LED12}]
-set_property PACKAGE_PIN N3 [get_ports {LED13}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {LED13}]
-set_property PACKAGE_PIN P1 [get_ports {LED14}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {LED14}]
-set_property PACKAGE_PIN L1 [get_ports {LED15}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {LED15}]
+#set_property PACKAGE_PIN P3 [get_ports {LED12}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {LED12}]
+#set_property PACKAGE_PIN N3 [get_ports {LED13}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {LED13}]
+#set_property PACKAGE_PIN P1 [get_ports {LED14}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {LED14}]
+#set_property PACKAGE_PIN L1 [get_ports {LED15}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {LED15}]
 	
 	
 ##7 segment display
@@ -123,26 +123,26 @@ set_property PACKAGE_PIN L1 [get_ports {LED15}]
 
 ##Pmod Header JA
 ##Sch name = JA1
-set_property PACKAGE_PIN J1 [get_ports {IN1}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {IN1}]
-#Sch name = JA2
-set_property PACKAGE_PIN L2 [get_ports {IN2}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {IN2}]
-#Sch name = JA3
-set_property PACKAGE_PIN J2 [get_ports {IN3}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {IN3}]
-#Sch name = JA4
-set_property PACKAGE_PIN G2 [get_ports {IN4}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {IN4}]
+#set_property PACKAGE_PIN J1 [get_ports {IN1}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {IN1}]
+##Sch name = JA2
+#set_property PACKAGE_PIN L2 [get_ports {IN2}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {IN2}]
+##Sch name = JA3
+#set_property PACKAGE_PIN J2 [get_ports {IN3}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {IN3}]
+##Sch name = JA4
+#set_property PACKAGE_PIN G2 [get_ports {IN4}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {IN4}]
 ##Sch name = JA7
 #set_property PACKAGE_PIN H1 [get_ports {JA[4]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[4]}]
 #Sch name = JA8
-set_property PACKAGE_PIN K2 [get_ports {ENA}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {ENA}]
-#Sch name = JA9
-set_property PACKAGE_PIN H2 [get_ports {ENB}]					
-	set_property IOSTANDARD LVCMOS33 [get_ports {ENB}]
+#set_property PACKAGE_PIN K2 [get_ports {ENA}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {ENA}]
+##Sch name = JA9
+#set_property PACKAGE_PIN H2 [get_ports {ENB}]					
+#	set_property IOSTANDARD LVCMOS33 [get_ports {ENB}]
 ##Sch name = JA10
 #set_property PACKAGE_PIN G3 [get_ports {JA[7]}]					
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JA[7]}]
@@ -206,17 +206,17 @@ set_property PACKAGE_PIN H2 [get_ports {ENB}]
 
 ##Pmod Header JXADC
 ##Sch name = XA1_P
-#set_property PACKAGE_PIN J3 [get_ports {JXADC[0]}]				
-	#set_property IOSTANDARD LVCMOS33 [get_ports {JXADC[0]}]
+#set_property PACKAGE_PIN J3 [get_ports {pin1}]				
+#	set_property IOSTANDARD LVCMOS33 [get_ports {pin1}]
 ##Sch name = XA2_P
-#set_property PACKAGE_PIN L3 [get_ports {JXADC[1]}]				
-	#set_property IOSTANDARD LVCMOS33 [get_ports {JXADC[1]}]
+set_property PACKAGE_PIN L3 [get_ports {pin2}]				
+	set_property IOSTANDARD LVCMOS33 [get_ports {pin2}]
 ##Sch name = XA3_P
-#set_property PACKAGE_PIN M2 [get_ports {JXADC[2]}]				
-	#set_property IOSTANDARD LVCMOS33 [get_ports {JXADC[2]}]
+set_property PACKAGE_PIN M2 [get_ports {pin3}]				
+	set_property IOSTANDARD LVCMOS33 [get_ports {pin3}]
 ##Sch name = XA4_P
-#set_property PACKAGE_PIN N2 [get_ports {JXADC[3]}]				
-	#set_property IOSTANDARD LVCMOS33 [get_ports {JXADC[3]}]
+set_property PACKAGE_PIN N2 [get_ports {pin1}]				
+	set_property IOSTANDARD LVCMOS33 [get_ports {pin1}]
 ##Sch name = XA1_N
 #set_property PACKAGE_PIN K3 [get_ports {JXADC[4]}]				
 	#set_property IOSTANDARD LVCMOS33 [get_ports {JXADC[4]}]

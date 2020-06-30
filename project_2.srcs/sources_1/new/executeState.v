@@ -22,17 +22,26 @@
 
 module executeState(
     input wire clk,
-    output wire [2:0] state
+    input wire [2:0] state,
+    input wire enable,
+    input wire velocity,
+    input wire ENA, ENB, IN1, IN2, IN3, IN4
     );
     
-    wire ENA, ENB, IN1, IN2, IN3, IN4;
-    
-    parameter dutyA = 8'd255; //domain 0-255, 127 is 50% duty cycle 
-   // parameter dutyB = 8'd255; // if we want to use B in a different speed then activate this.
+    wire dutyA;
+    wire A;
     
     reg rENA, rENB, rIN1, rIN2, rIN3, rIN4;
     
-    wire A, B; // A is left and B is right 
+    localparam FORWARD = 3'b000;
+    localparam LEFT = 3'b001; 
+    localparam RIGHT = 3'b010;
+    localparam BACKWARD = 3'b011;
+    localparam STOP = 3'b100;
+    
+    assign dutyA = (velocity) ? (8'd200) : (8'd100) ;
+    
+    PWM PWM_A(clk, dutyA, A);
     
     assign ENA = (rENA==1);
     assign ENB = (rENB==1);
@@ -41,56 +50,60 @@ module executeState(
     assign IN3 = (rIN3==1); 
     assign IN4 = (rIN4==1); 
     
-    //instantiation of submodule PWM
-    PWM PWM_A(clk, dutyA, A); 
-    //PWM PWM_B(clk, dutyB, B);
-    
     always@(posedge clk)
-        begin
-        if (state==3'b000) begin // forward
-            rENA <= A ; // turn on motor
-            rENB <=  A  ;  // turn on motor
-            
-            rIN1 <= 0; // orient motor A so that it moves forward
-            rIN2 <= 1; // orient motor A so that it moves forward 
-            
-            rIN3 <= 0;// orient motor B so that it moves forward 
-            rIN4 <= 1; // orient motor B so that it moves forward 
-            
-        end else if (state===3'b001) begin  // left
-            rENA <= A ; // turn on motor
-            rENB <=  A  ;  // turn on motor
-            
-            rIN1 <= 1; // orient motor A so that it moves backwards
-            rIN2 <= 0; // orient motor A so that it moves backwards 
-            
-            rIN3 <= 0;// orient motor B so that it moves forward 
-            rIN4 <= 1; // orient motor B so that it moves forward 
-            
-        end else if (state===3'b010) begin  // right
-            rENA <= A ; // turn on motor
-            rENB <=  A  ;  // turn on motor
-            
-            rIN1 <= 0; // orient motor A so that it moves forward
-            rIN2 <= 1; // orient motor A so that it moves forward 
-            
-            rIN3 <= 1;// orient motor B so that it moves backward 
-            rIN4 <= 0; // orient motor B so that it moves backward 
-            
-        end else if (state===3'b011) begin // back
-            rENA <= A ; // turn on motor
-            rENB <=  A  ;  // turn on motor
-            
-            rIN1 <= 1; // orient motor A so that it moves backwards
-            rIN2 <= 0; // orient motor A so that it moves backwards 
-            
-            rIN3 <= 1;// orient motor B so that it moves backwards 
-            rIN4 <= 0; // orient motor B so that it moves backwards 
-            
-        end else if (state===3'b100) begin  // stop
-        
-            rENA <= 0 ; // turn off motor
-            rENB <=  0  ;  // turn off motor
+    begin
+        if (enable==1) begin
+            case(state)
+            FORWARD:
+                begin
+                rENA <= A ; // turn on motor
+                rENB <=  A  ;  // turn on motor
+                
+                rIN1 <= 0; // orient motor A so that it moves forward
+                rIN2 <= 1; // orient motor A so that it moves forward 
+                
+                rIN3 <= 0;// orient motor B so that it moves forward 
+                rIN4 <= 1; // orient motor B so that it moves forward 
+                end
+            LEFT:
+                begin
+                rENA <= A ; // turn on motor
+                rENB <=  A  ;  // turn on motor
+                
+                rIN1 <= 1; // orient motor A so that it moves backwards
+                rIN2 <= 0; // orient motor A so that it moves backwards 
+                
+                rIN3 <= 0;// orient motor B so that it moves forward 
+                rIN4 <= 1; // orient motor B so that it moves forward 
+                end
+            RIGHT: 
+                begin
+                rENA <= A ; // turn on motor
+                rENB <=  A  ;  // turn on motor
+                
+                rIN1 <= 0; // orient motor A so that it moves forward
+                rIN2 <= 1; // orient motor A so that it moves forward 
+                
+                rIN3 <= 1;// orient motor B so that it moves backward 
+                rIN4 <= 0; // orient motor B so that it moves backward 
+                end
+            BACKWARD:
+                begin
+                rENA <= A ; // turn on motor
+                rENB <=  A  ;  // turn on motor
+                
+                rIN1 <= 1; // orient motor A so that it moves backwards
+                rIN2 <= 0; // orient motor A so that it moves backwards 
+                
+                rIN3 <= 1;// orient motor B so that it moves backwards 
+                rIN4 <= 0; // orient motor B so that it moves backwards 
+                end
+            STOP:
+                begin
+                rENA <= 0 ; // turn off motor
+                rENB <=  0  ;  // turn off motor
+                end
+            endcase
         end
         
     end
