@@ -21,9 +21,6 @@
 
 
 module stateRemote(
-       input wire clk,
-       input wire sensorState,
-       output wire stateOutput
     );
     
     

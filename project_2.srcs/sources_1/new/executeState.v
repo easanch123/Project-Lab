@@ -28,20 +28,20 @@ module executeState(
     input wire ENA, ENB, IN1, IN2, IN3, IN4
     );
     
-    wire dutyA;
+    wire dutyA, dutyB;
     wire A;
     
     reg rENA, rENB, rIN1, rIN2, rIN3, rIN4;
     
-    localparam FORWARD = 3'b000;
-    localparam LEFT = 3'b001; 
-    localparam RIGHT = 3'b010;
-    localparam BACKWARD = 3'b011;
-    localparam STOP = 3'b100;
-    
-    assign dutyA = (velocity) ? (8'd200) : (8'd100) ;
+    localparam SURVIVAL = 3'b001;
+    localparam FORWARD = 3'b010;
+    localparam STOP = 3'b011;
+    localparam LEFT = 3'b100; 
+    localparam RIGHT = 3'b101;
+    localparam BACKWARD = 3'b110;
     
     PWM PWM_A(clk, dutyA, A);
+    PWM PWM_B(clk, dutyB, A);
     
     assign ENA = (rENA==1);
     assign ENB = (rENB==1);
@@ -50,7 +50,7 @@ module executeState(
     assign IN3 = (rIN3==1); 
     assign IN4 = (rIN4==1); 
     
-    always@(posedge clk)
+    always@(posedge clk) 
     begin
         if (enable==1) begin
             case(state)

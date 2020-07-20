@@ -39,10 +39,13 @@ module setState(
                                 .velocity(velocity),
                                 .sensorState(sensorState),
                                 .enable(enable) );
-                                 
+    stateRemote remote ();
+    
     sensorStateDecoder decoder (    .sensorState(sensorState), 
                                     .state(state),
                                     .en(motorEn),
                                     .enable(enable) );
+        
+                                    
     
 endmodule

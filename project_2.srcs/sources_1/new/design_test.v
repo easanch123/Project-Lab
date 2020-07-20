@@ -21,15 +21,23 @@
 
 
 module design_test(
-    input wire clk
+    input wire clk,
+    input wire lSensor, mSensor, rSensor,
+    output wire LED1, LED2, LED3
     );
-    reg rLED13;
-    wire LED13;
     
-    assign LED13 = (rLED13==1);
+    reg stuff;
     
-    initial begin
-    rLED13 = 1;
+    always @ (posedge clk) begin
+    stuff = ~stuff;
     end
     
+    initial begin
+    stuff = 0;
+    end
+   
+   assign LED1 = (lSensor==0);
+   assign LED2 = (mSensor==0);
+   assign LED3 = (rSensor==0);
+   
 endmodule
