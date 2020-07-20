@@ -32,9 +32,9 @@ module topFile(
     output wire [3:0] an,                 // anode for the 7 segment display
     
     output wire LED0,
-    output wire IN1
+    
 //    input wire L, M, R,
-//    output wire ENA, ENB, IN1, IN2, IN3, IN4
+    output wire ENA, ENB, IN1, IN2, IN3, IN4
     
     
     
@@ -46,8 +46,7 @@ module topFile(
                                             .irSensor(irSensor),
                                             .outpState(currentState),
                                             .stateReady(stateReady),
-                                            .LED0(LED0),
-                                            .IN1(IN1)
+                                            .LED0(LED0)
     );
 
     sevenSegmentDisplay sevenSegment (      .clk(clk),
@@ -61,7 +60,7 @@ module topFile(
     
     executeState executingState (           .clk(clk), 
                                             .state(currentState),
-                                            .enable(stateReady),
+                                            .stateReady(stateReady),
                                             .ENA(ENA),
                                             .ENB(ENB),
                                             .IN1(IN1),

@@ -7,8 +7,6 @@ module irTop(
     input wire irSensor,
     output wire stateReady,
     output wire [3:0] outpState,
-    output wire IN1,
-    
     output wire LED0
     
      );
@@ -35,9 +33,7 @@ module irTop(
                                     .inputSignal(irBuffer), 
                                     .invertedInput(irInput)) ;
                                     
-    assign LED0 = irInput;
-    assign IN1 = irInput;
-    
+    assign LED0 = irInput ; 
     
     irSensor irSensorLogic (        .clk100khz(clk100khz), 
                                     .irInput(irInput), 
