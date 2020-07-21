@@ -33,7 +33,8 @@ module topFile(
     
     output wire LED0,
     
-//    input wire L, M, R,
+    input wire lSensor, mSensor, rSensor,
+    
     output wire ENA, ENB, IN1, IN2, IN3, IN4
     
     
@@ -41,6 +42,7 @@ module topFile(
     );
     wire stateReady;
     wire [3:0] currentState;
+    wire [1:0] speedState;
 
     irTop IRSensorLogic (                   .clk(clk),
                                             .irSensor(irSensor),
@@ -48,6 +50,8 @@ module topFile(
                                             .stateReady(stateReady),
                                             .LED0(LED0)
     );
+
+
 
     sevenSegmentDisplay sevenSegment (      .clk(clk),
                                             .stateReady(stateReady),
@@ -57,10 +61,22 @@ module topFile(
                                             .anode(an)
     );
     
+    // Put a module here which we will pass all of the sensors into. This will then output a specific output for
+    // whether or not to increase speed on left motor, right motor, or whether or not to stop
+    
+
+    stateSensors getSpeedState(             .clk(clk),
+                                            .lSensor(lSensor),
+                                            .mSensor(mSensor),
+                                            .rSensor(rSensor),
+                                            .state(currentState),
+                                            .speedState(speedState)
+
+    );
     
     executeState executingState (           .clk(clk), 
                                             .state(currentState),
-                                            .stateReady(stateReady),
+                                            .speedState(speedState),
                                             .ENA(ENA),
                                             .ENB(ENB),
                                             .IN1(IN1),
@@ -69,10 +85,8 @@ module topFile(
                                             .IN4(IN4) 
     );
 
-    
-    
+
         
-//    wire [2:0] state;
 //    wire enable;
 //    wire velocity;
     

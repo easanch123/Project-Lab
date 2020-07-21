@@ -40,23 +40,28 @@ module sevenSegmentDisplay(
         2'b11 :  rAnode <= 4'b0111;  // When the 2 MSB's are 11 enable the first display
 
       endcase
+      
+      if (stateReady) begin
+      
+          // Given the current state, update the segment register
+          case (currentState)
+    
+            4'd0 : rSeg <= 7'b1000000; // To display 0
+            4'd1 : rSeg <= 7'b1111001; // To display 1
+            4'd2 : rSeg <= 7'b0100100; // To display 2
+            4'd3 : rSeg <= 7'b0110000; // To display 3
+            4'd4 : rSeg <= 7'b0011001; // To display 4
+            4'd5 : rSeg <= 7'b0010010; // To display 5
+            4'd6 : rSeg <= 7'b0000010; // To display 6
+            4'd7 : rSeg <= 7'b1111000; // To display 7
+            4'd8 : rSeg <= 7'b0000000; // To display 8
+            4'd9 : rSeg <= 7'b0010000; // To display 9
+            default : rSeg <= 7'b0111111; //dash
+    
+          endcase
+      end
 
-      // Given the current state, update the segment register
-      case (currentState)
-
-        4'd0 : rSeg <= 7'b1000000; // To display 0
-        4'd1 : rSeg <= 7'b1111001; // To display 1
-        4'd2 : rSeg <= 7'b0100100; // To display 2
-        4'd3 : rSeg <= 7'b0110000; // To display 3
-        4'd4 : rSeg <= 7'b0011001; // To display 4
-        4'd5 : rSeg <= 7'b0010010; // To display 5
-        4'd6 : rSeg <= 7'b0000010; // To display 6
-        4'd7 : rSeg <= 7'b1111000; // To display 7
-        4'd8 : rSeg <= 7'b0000000; // To display 8
-        4'd9 : rSeg <= 7'b0010000; // To display 9
-        default : rSeg <= 7'b0111111; //dash
-
-      endcase
+      
     end    
 
 endmodule
