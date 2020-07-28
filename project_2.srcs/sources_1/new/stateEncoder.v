@@ -39,7 +39,7 @@ module stateEncoder(
                 12'b111011101111 : rState <= 4'b1001; //9
                 12'b011011101111 : rState <= 4'b0000; //0
                 endcase
-                rStateReady <= 1;
+                rStateReady <= 1; // output bit that tells us that the state has now changed
             end
         end else begin
             if (rStateReady) begin

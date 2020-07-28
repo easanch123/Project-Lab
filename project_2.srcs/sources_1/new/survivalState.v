@@ -64,20 +64,20 @@ module survivalState(
 
                     FORWARD :  
                     begin
-                        stepR <= (dutyA < MAXSPEED-speedStep) ? (speedStep) : (0);
-                        stepL <= (dutyA < MAXSPEED-speedStep) ? (speedStep) : (0);
+                        stepR <= (dutyA < MAXSPEED-speedIncrease) ? (speedIncrease) : (0);
+                        stepL <= (dutyA < MAXSPEED-speedIncrease) ? (speedIncrease) : (0);
                     end
 
                     LEFT :  
                     begin
-                        stepR <= (dutyA < MAXSPEED-speedStep) ? (speedStep) : (0);
+                        stepR <= (dutyA < MAXSPEED-speedIncrease) ? (speedIncrease) : (0);
                         stepL <= (dutyA > speedDecrease) ? (-speedDecrease) : (0);
                     end
 
                     RIGHT :  
                     begin
                         stepR <= (dutyA > speedDecrease) ? (-speedDecrease) : (0);
-                        stepL <= (dutyA < MAXSPEED-speedStep) ? (speedStep) : (0);
+                        stepL <= (dutyA < MAXSPEED-speedIncrease) ? (speedIncrease) : (0);
                     end
 
                     STOP :  

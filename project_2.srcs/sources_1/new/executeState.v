@@ -23,42 +23,31 @@
 module executeState(
     input wire clk,
     input wire [3:0] state,
-    input wire [1:0] speedState,
+    input wire [1:0] speedChange,
+    input wire [7:0] dutyA,
+    input wire [7:0] dutyB,
     output wire ENA, ENB, IN1, IN2, IN3, IN4
     
     );
-    
-    wire A; // this is the right motor
-    wire B; // this is the left motor
-    
-    parameter dutyA = 8'd150; 
-    parameter dutyB = 8'd150;
-    
-    reg rENA, rENB, rIN1, rIN2, rIN3, rIN4;
-    
+
     localparam FORWARD = 4'd02 ;
     localparam LEFT = 4'd04 ;
     localparam RIGHT = 4'd06 ;
     localparam BACKWARD = 4'd08 ;
     localparam SURVIVAL = 4'd00 ; 
     
+    localparam survivalFORWARD = 2'd0 ;
+    localparam survivalRIGHT= 2'd1 ;
+    localparam survivalLEFT = 2'd2 ;
+    localparam survivalSTOP = 2'd03 ;
+
+    wire A; // this is the right motor
+    wire B; // this is the left motor
+    
+    reg rENA, rENB, rIN1, rIN2, rIN3, rIN4;
+
     PWM PWM_A(clk, dutyA, A);
     PWM PWM_B(clk, dutyB, B);
-
-    wire [7:0] survivalDutyA ; 
-    wire [7:0] survivalDutyB ;
-
-    wire survivalA, survivalB;
-
-    survivalState survivalInputs (      .clk(clk), 
-                                        .survivalA(survivalDutyA),
-                                        .survivalB(survivalDutyB), 
-                                        .state(state), 
-                                        .speedState(speedState)
-    ); 
-
-    PWM PWM_A_SURV(clk, survivalDutyA, survivalA );
-    PWM PWM_B_SURV(clk, survivalDutyB, survivalB );
     
     assign ENA = (rENA==1);
     assign ENB = (rENB==1);
@@ -116,15 +105,35 @@ module executeState(
             end
         SURVIVAL:
             begin
-            rENA <= survivalA ; // turn on motor
-            rENB <=  survivalB  ;  // turn on motor
-
+            rENA <= A ; // turn on motor
+            rENB <=  B  ;  // turn on motor
+            
+            case (speedChange)
+            survivalFORWARD: 
+            begin
             rIN1 <= 1; // orient motor A so that it moves forward
             rIN2 <= 0; // orient motor A so that it moves forward 
             
             rIN3 <= 0;// orient motor B so that it moves forward 
             rIN4 <= 1; // orient motor B so that it moves forward 
+            end
+            survivalRIGHT:
+            begin
+            rIN1 <= 0; // orient motor A so that it moves forward
+            rIN2 <= 1; // orient motor A so that it moves forward 
             
+            rIN3 <= 0;// orient motor B so that it moves backward 
+            rIN4 <= 1; // orient motor B so that it moves backward 
+            end
+            survivalLEFT:
+            begin
+            rIN1 <= 1; // orient motor A so that it moves backwards
+            rIN2 <= 0; // orient motor A so that it moves backwards 
+            
+            rIN3 <= 1;// orient motor B so that it moves forward 
+            rIN4 <= 0; // orient motor B so that it moves forward 
+            end
+            endcase 
             end
         default:
             begin

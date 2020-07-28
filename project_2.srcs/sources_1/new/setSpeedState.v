@@ -1,4 +1,6 @@
-\`timescale 1ns / 1ps
+`timescale 1ns / 1ps
+`default_nettype none
+
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -25,40 +27,67 @@ module setSpeedState(
     input wire clk,
     input wire [2:0] sensorInput,
     input wire [3:0] state,
-
-    output wire [1:0] speedState
+    output wire [1:0] speedChange
 
     );
 
-    reg [1:0] rSpeedState;
+    reg [1:0] rSpeedChange;
+    
+    localparam SURVIVAL = 4'd00 ; 
 
-    assign speedState = rSpeedState;
+    assign speedChange = rSpeedChange;
+    
+    initial begin
+    rSpeedChange = 0;
+    end
+    
 
     localparam FORWARD = 2'd0 ;
-    localparam LEFT = 2'd1 ;
-    localparam RIGHT = 2'd2 ;
+    localparam RIGHT= 2'd1 ;
+    localparam LEFT = 2'd2 ;
     localparam STOP = 2'd03 ;
+
+    always @ (posedge state) 
+    begin
+        rSpeedChange <= 0; 
+    end
 
     always @ (posedge clk)
     begin
-        if (sensorInput[1]) // if the middle is active
+        if (state == SURVIVAL) 
         begin
-            if (sensorInput[0] && ~sensorInput[2]) // if the middle and the left is activated, then we need to turn right
+            if (rSpeedChange!= STOP)
             begin
-                rSpeedState <= RIGHT;
-            end else if (sensorInput[2] && ~sensorInput[0])
-            begin
-                rSpeedState <= LEFT ;
-            end else if (sensorInput[2] && sensorInput[0]) 
-            begin
-                rSpeedState <= STOP ; 
-            end else if (sensorInput[2] && sensorInput[0]) 
-            begin
-                rSpeedState <= FORWARD ; 
+                if (sensorInput[1]) // if the middle is active
+                begin
+                    if (sensorInput[0] && ~sensorInput[2]) 
+                    begin
+                        rSpeedChange <= RIGHT; // if the middle and the left is activated, then we need to turn right
+                        
+                    end else if (sensorInput[2] && ~sensorInput[0]) 
+                    begin
+                        rSpeedChange <= LEFT ; // if the middle and the right is activated, then we need to turn left
+        
+                    end else if (sensorInput[2] && sensorInput[0])  
+                    begin
+                        rSpeedChange <= STOP ; // if all are active, we need to stop
+                        
+                    end else if (~sensorInput[2] && ~sensorInput[0]) begin
+                        rSpeedChange <= FORWARD ; // if the middle and the right & left is is un-activated, then we need to go forward
+                    end
+                end else begin
+                    if (sensorInput[0] && ~sensorInput[2]) 
+                    begin
+                        rSpeedChange <= RIGHT; // if the left is activated, then we need to turn right
+                        
+                    end else if (sensorInput[2] && ~sensorInput[0]) 
+                    begin
+                        rSpeedChange <= LEFT ; // if the middle and the right is activated, then we need to turn left
+                    end else begin
+                    rSpeedChange <= STOP ;
+                    end
+                end
             end
-        end else begin
-            rSpeedState <= STOP;
         end
     end
-
 endmodule

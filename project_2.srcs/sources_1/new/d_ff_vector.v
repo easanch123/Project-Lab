@@ -19,8 +19,8 @@ always @ (posedge clk)
         rRSensor <= rSensor;
     end
 
-    assign lSensorBuffer = lSensor ;
-    assign mSensorBuffer = mSensor ;
-    assign rSensorBuffer = rSensor ;
+    assign lSensorBuffer = rLSensor ;
+    assign mSensorBuffer = rMSensor ;
+    assign rSensorBuffer = rRSensor ;
 
 endmodule

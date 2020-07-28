@@ -26,14 +26,22 @@ module stateSensors(
        input wire clk,
        input wire lSensor, mSensor, rSensor,
        input wire [3:0] state,
-       output wire [1:0] speedState
+       output wire [1:0] speedChange,
+       
+       output wire LED2, LED3, LED4
 
 
     );
 
         wire [2:0] sensorBuffer;
+        wire [2:0] sensorBuffer2;
+        
         wire [2:0] sensorInput; // This is the IR input that we want to be reading
-
+        
+        assign sensorInput[0] = ~sensorBuffer2[0];
+        assign sensorInput[1] = ~sensorBuffer2[1];
+        assign sensorInput[2] = ~sensorBuffer2[2];
+        
         d_ff_vector d_ff_vector0 (          .lSensor(lSensor), 
                                             .mSensor(mSensor),
                                             .rSensor(rSensor),
@@ -47,15 +55,19 @@ module stateSensors(
                                             .mSensor(sensorBuffer[1]),
                                             .rSensor(sensorBuffer[2]),
                                             .clk(clk), 
-                                            .lSensorBuffer(sensorInput[0]),
-                                            .mSensorBuffer(sensorInput[1]),
-                                            .rSensorBuffer(sensorInput[2])
+                                            .lSensorBuffer(sensorBuffer2[0]),
+                                            .mSensorBuffer(sensorBuffer2[1]),
+                                            .rSensorBuffer(sensorBuffer2[2])
         );
+        
+        assign LED2 = sensorInput[0];
+        assign LED3 = sensorInput[1];
+        assign LED4 = sensorInput[2];
 
         setSpeedState setSpeed (            .clk(clk),
                                             .sensorInput(sensorInput),
                                             .state(state),
-                                            .speedState(speedState)        
+                                            .speedChange(speedChange)        
         );
 
     

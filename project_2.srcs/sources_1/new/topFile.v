@@ -29,20 +29,30 @@ module topFile(
 
     output wire [6:0]seg,                   // 7 segment display
     output wire dp,                         // decimal point on the 7 segment display 
-    output wire [3:0] an,                 // anode for the 7 segment display
+    output wire [3:0] an,                   // anode for the 7 segment display
     
-    output wire LED0,
+    output wire LED0,                       // used to debug the remote signal
     
-    input wire lSensor, mSensor, rSensor,
+    input wire lSensor, mSensor, rSensor,   // left middle and right sensors
     
-    output wire ENA, ENB, IN1, IN2, IN3, IN4
+    output wire ENA, ENB, IN1, IN2, IN3, IN4, // used to control the motors]]
     
+    input wire sw0, // switch for debugging
     
+    output wire LED2, LED3, LED4
     
     );
     wire stateReady;
     wire [3:0] currentState;
-    wire [1:0] speedState;
+    wire [1:0] speedChange;
+
+    wire [7:0] dutyA ; 
+    wire [7:0] dutyB ; 
+    
+    wire [3:0] debugPass;
+    
+    wire sw0Buffer;
+    wire sw0Final;
 
     irTop IRSensorLogic (                   .clk(clk),
                                             .irSensor(irSensor),
@@ -61,22 +71,44 @@ module topFile(
                                             .anode(an)
     );
     
-    // Put a module here which we will pass all of the sensors into. This will then output a specific output for
-    // whether or not to increase speed on left motor, right motor, or whether or not to stop
+    d_ff d_ff1 (                    .inpSignal(sw0), 
+                                    .clk(clk), 
+                                    .outpSignal(sw0Buffer)) ;
     
-
+    d_ff d_ff2 (                    .inpSignal(sw0Buffer), 
+                                    .clk(clk), 
+                                    .outpSignal(sw0Final)) ;
+    
+    assign debugPass = ( sw0Final==1 ) ? (4'd0) : (4'd5) ; 
+    
     stateSensors getSpeedState(             .clk(clk),
                                             .lSensor(lSensor),
                                             .mSensor(mSensor),
                                             .rSensor(rSensor),
+                                            .state(debugPass),
+                                            .speedChange(speedChange),
+                                            .LED2(LED2),
+                                            .LED3(LED3),
+                                            .LED4(LED4)
+
+    );
+
+
+    // 
+    setExecuteState setExecutingState(      .clk(clk),
                                             .state(currentState),
-                                            .speedState(speedState)
+                                            .speedChange(speedChange),
+                                            .dutyA(dutyA),
+                                            .dutyB(dutyB)
+
 
     );
     
     executeState executingState (           .clk(clk), 
                                             .state(currentState),
-                                            .speedState(speedState),
+                                            .speedChange(speedChange),
+                                            .dutyA(dutyA),
+                                            .dutyB(dutyB),
                                             .ENA(ENA),
                                             .ENB(ENB),
                                             .IN1(IN1),
@@ -84,20 +116,6 @@ module topFile(
                                             .IN3(IN3),
                                             .IN4(IN4) 
     );
-
-
-        
-//    wire enable;
-//    wire velocity;
-    
-//    setState stateSet ( .clk(clk),
-//                        .L(L),
-//                        .R(R),
-//                        .M(M),
-//                        .state(state),
-//                        .velocity(velocity),
-//                        .enable(enable) );
-                        
     
     
     
