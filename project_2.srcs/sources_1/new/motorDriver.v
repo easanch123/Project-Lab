@@ -39,6 +39,8 @@ module motorDriver(
     localparam survivalRIGHT= 2'd1 ;
     localparam survivalLEFT = 2'd2 ;
     localparam survivalSTOP = 2'd03 ;
+    
+    localparam MAXSPEED = 200;
 
     wire A; // this is the right motor
     wire B; // this is the left motor
@@ -50,7 +52,8 @@ module motorDriver(
     reg [7:0] rAccelerationA;
     reg [7:0] rAccelerationB; 
 
-    localparameter MAXSPEED = 200;
+    wire [7:0] dutyA;
+    wire [7:0] dutyB;
 
     PWM PWM_A(clk, dutyA, A);
     PWM PWM_B(clk, dutyB, B);

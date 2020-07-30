@@ -2,38 +2,49 @@
 `default_nettype none
 
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
+// Company: Texas Tech University
+// Engineer: Edward Sanchez
 // 
-// Create Date: 07/28/2020 07:40:09 PM
-// Design Name: 
-// Module Name: interpretInputs
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
+// Create Date: 06/27/2020 04:38:53 PM
+// Design Name: Arche
+// Module Name: stateSensors
+// Project Name: Synchronous State Machine: Rover
+// Target Devices: Xilinx Artix-7, Basys3 Board
+// Tool Versions: Xilinx 2020.1
+// Description: Arche is a Greek for "beginning," and the name of the Design.
+// As the first digital design FPGA project with sensors created by the team
+// we believed it was a fitting name. 
+// The purpose of this rover is to serve as a cool toy that can be controlled by 
+// a remote control. It is also able to stay within on a metal path.  
 // 
 // Dependencies: 
 // 
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
-// 
 //////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+// PURPOSE: Purpose of this module is to intake all of the different sensor inputs 
+// present in the design (IR sensors, metal sensors, distance sensors, and stall sensor)
+// and output an appropriate state for the machine. 
+//
+//
+                                            
+module setState (
 
+       input wire clk,
 
-module setState(
-    input wire clk,
-
-    input wire [4:0] remoteInputs,
-    input wire remoteReady,
-    
-    input wire motorReady,
-    input wire motorStop, 
-
-    output wire [4:0] state,
-    output wire stateReady,
-    output wire survivalMode
+       input wire [3:0] remoteInputs,
+       input wire remoteReady,
+       input wire motorReady,
+       input wire motorStop,
+       
+       output wire survivalMode,   
+       output wire [4:0] state,
+       output wire stateReady
+       
     );
 
     // User-Input States
@@ -53,30 +64,28 @@ module setState(
     localparam UTURN = 5'd11;
     
     reg [4:0] rState ;
-
     reg rStateReady;
-
-    reg rSurvivalActivate;
+    reg rSurvivalMode ;
 
     assign stateReady = rStateReady ;
     assign state = rState ;
 
     wire UserInputReady;
 
-    assign survivalMode = rSurvivalActivate;
+    assign survivalMode = rSurvivalMode;
     
-    wire tracking, WaitCondition, WaitSurvival, WaitNormal;
+    wire Tracking, WaitCondition, WaitSurvival, WaitNormal;
 
-    assign Tracking = ((rState==STRAIGHT || rState==TURNLEFT || rState==TURNRIGHT || rState==UTURN || rState==SURVIVAL) && (~rStateReady && rSurvivalActivate && motorReady && ~motorStop))  ;
+    assign Tracking = ((rState==STRAIGHT || rState==TURNLEFT || rState==TURNRIGHT || rState==UTURN || rState==SURVIVAL) && (~rStateReady && rSurvivalMode && motorReady && ~motorStop))  ;
     assign WaitCondition = (motorStop && ~rStateReady && remoteReady && motorReady); // ListenCondition
-    assign WaitSurvival = (WaitCondition && rSurvivalActivate) ;
-    assign WaitNormal =  (WaitCondition && ~rSurvivalActivate) ; 
+    assign WaitSurvival = (WaitCondition && rSurvivalMode) ;
+    assign WaitNormal =  (WaitCondition && ~rSurvivalMode) ; 
 
     initial 
     begin
         rState = 3;
         rStateReady = 0;
-        rSurvivalActivate = 0;
+        rSurvivalMode = 0;
     end
 
     always @ (posedge clk) 
@@ -124,7 +133,7 @@ module setState(
 
                     SURVIVAL: 
                     begin
-                        rSurvivalActivate <= 0 ;
+                        rSurvivalMode <= 0 ;
                         rState <= STOP;
                         rStateReady <= 1;
                     end  
@@ -141,7 +150,7 @@ module setState(
 
                     SURVIVAL: 
                     begin
-                        rSurvivalActivate <= 1 ;
+                        rSurvivalMode <= 1 ;
                         rState <= SURVIVAL;
                         rStateReady <= 1;
                     end  

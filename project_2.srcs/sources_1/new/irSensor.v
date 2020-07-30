@@ -59,13 +59,13 @@ module irSensor(
 
                 rReady <= 0;
 
-                curSignal <= irInput;
+                curSignal <= remoteInput;
 
             end 
             else begin
 
                     // initialize prevSignal and curSignal for edge detection
-            curSignal <= irInput;
+            curSignal <= remoteInput;
             prevSignal <= curSignal;
 
             // Adjust the POS and NEG counters according to the current signal 

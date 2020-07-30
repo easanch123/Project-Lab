@@ -12,17 +12,18 @@
 // Target Devices: FPGA Basys3
 // 
 //////////////////////////////////////////////////////////////////////////////////
+                                            
 module cleanInputs (
     input wire clk,
     input wire lSensor, mSensor, rSensor,
     input wire distanceSensor,
-    input wire stallSensor
+    input wire stallSensor,
 
     output wire [2:0] metalInputs,
     output wire distanceInput,
-    output wire stallInput
+    output wire stallInput,
 
-    output wire LED2, LED3, LED4, LED5, LED6;
+    output wire LED2, LED3, LED4, LED5, LED6
 
     );
 

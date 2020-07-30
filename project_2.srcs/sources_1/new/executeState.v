@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 06/27/2020 04:28:26 PM
+// Create Date: 06/27/2020 04:16:02 PM
 // Design Name: 
-// Module Name: executeState
+// Module Name: top
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,98 +20,245 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module motorDriver(
+module executeState (
+
     input wire clk,
     input wire [3:0] state,
-    input wire [1:0] speedChange,
-    input wire [7:0] dutyA,
-    input wire [7:0] dutyB,
-    output wire ENA, ENB, IN1, IN2, IN3, IN4
+    input wire stateReady,
+
+    output wire motorReady,
+    output wire motorStop,
+
+    input wire distanceSensor,
+    input wire [2:0] metalInputs,
+    input wire distanceInputs,
+
+    output wire [2:0] accelerationA,
+    output wire [2:0] accelerationB,
+    output wire accelerationReady 
     
     );
+    
+    // User-Input States
+    localparam FORWARD = 5'd02 ;
+    localparam STOP = 5'd03 ; 
+    localparam LEFT = 5'd04 ;
+    localparam ABOUTFACE = 5'd05 ;
+    localparam RIGHT = 5'd06 ;
+    localparam BACKWARD = 5'd08 ;
 
-    localparam FORWARD = 4'd02 ;
-    localparam LEFT = 4'd04 ;
-    localparam RIGHT = 4'd06 ;
-    localparam BACKWARD = 4'd08 ;
-    localparam SURVIVAL = 4'd00 ; 
+    // Survival States
+    localparam SURVIVAL = 5'd0 ; 
+    localparam TRACKING = 5'd12;
+    localparam STRAIGHT = 5'd07;
+    localparam TURNLEFT = 5'd09;
+    localparam TURNRIGHT = 5'd10;
+    localparam UTURN = 5'd11;
     
-    localparam survivalFORWARD = 2'd0 ;
-    localparam survivalRIGHT= 2'd1 ;
-    localparam survivalLEFT = 2'd2 ;
-    localparam survivalSTOP = 2'd03 ;
 
-    wire A; // this is the right motor
-    wire B; // this is the left motor
-    
-    reg rENA, rENB, rIN1, rIN2, rIN3, rIN4;
+    localparam survivalRIGHT = 0;
+    localparam survivalLEFT = 1;
+    localparam survivalSTRAIGHT = 2;
+    localparam survivalSTOP = 3;
 
-    PWM PWM_A(clk, dutyA, A);
-    PWM PWM_B(clk, dutyB, B);
+    localparam ACCELERATIONSPEED = 1;
+    localparam DECELERATIONSPEED = -1;
     
-    assign ENA = (rENA==1);
-    assign ENB = (rENB==1);
-    assign IN1 = (rIN1==1);
-    assign IN2 = (rIN2==1);
-    assign IN3 = (rIN3==1); 
-    assign IN4 = (rIN4==1); 
+
+    reg rAccelerationReady;
+    reg [2:0] rAccelerationA;
+    reg [2:0] rAccelerationB;
     
-    always@(posedge clk) 
+    reg rMotorReady;
+    reg rMotorStop;
+
+    reg [32:0] rStateCount;
+
+    reg [32:0] rActionCount;
+
+    assign motorReady = ~rAccelerationReady;
+    assign motorStop = rMotorStop;
+    
+    assign accelerationA = rAccelerationA;
+    assign accelerationB = rAccelerationB;
+
+    reg [1:0] rSensorDecision; 
+    
+ 
+
+    initial 
     begin
-        case(state)
-        FORWARD:
-            begin
-            rENA <=  A ; // turn on motor
-            rENB <=  B  ;  // turn on motor
-            
-            rIN1 <= 1; // orient motor A so that it moves forward
-            rIN2 <= 0; // orient motor A so that it moves forward 
-            
-            rIN3 <= 0;// orient motor B so that it moves forward 
-            rIN4 <= 1; // orient motor B so that it moves forward 
-            end
-        LEFT:
-            begin
-            rENA <=  A ; // turn on motor
-            rENB <=  B  ;  // turn on motor
-            
-            rIN1 <= 1; // orient motor A so that it moves backwards
-            rIN2 <= 0; // orient motor A so that it moves backwards 
-            
-            rIN3 <= 1;// orient motor B so that it moves forward 
-            rIN4 <= 0; // orient motor B so that it moves forward 
-            end
-        RIGHT: 
-            begin
-            rENA <= A ; // turn on motor
-            rENB <=  B  ;  // turn on motor
-            
-            rIN1 <= 0; // orient motor A so that it moves forward
-            rIN2 <= 1; // orient motor A so that it moves forward 
-            
-            rIN3 <= 0;// orient motor B so that it moves backward 
-            rIN4 <= 1; // orient motor B so that it moves backward 
-            end
-        BACKWARD:
-            begin
-            rENA <= A ; // turn on motor
-            rENB <=  B  ;  // turn on motor
-            
-            rIN1 <= 0; // orient motor A so that it moves backwards
-            rIN2 <= 1; // orient motor A so that it moves backwards 
-            
-            rIN3 <= 1;// orient motor B so that it moves backwards 
-            rIN4 <= 0; // orient motor B so that it moves backwards 
-            end 
+        rAccelerationReady = 0;
+        rMotorReady = 0;
+        rMotorStop = 0;
+    end
+    
+    // the point of this module is to be given a state and then to give the outputs for the motor
 
-
-        default:
+    always @ (posedge clk)
+    begin
+        if (metalInputs[1]) // if the middle is active
+        begin
+            if (metalInputs[0] && ~metalInputs[2]) // if the middle and the left is activated, then we need to turn right
             begin
-            rENA <= 0 ; // turn off motor
-            rENB <=  0  ;  // turn off motor
+                rSensorDecision <= survivalRIGHT;
+            end else if (metalInputs[2] && ~metalInputs[0])
+            begin
+                rSensorDecision <= survivalLEFT ;
+            end else if (metalInputs[2] && metalInputs[0]) 
+            begin
+                rSensorDecision <= survivalSTOP ; 
+            end else if (metalInputs[2] && metalInputs[0]) 
+            begin
+                rSensorDecision <= survivalSTRAIGHT ; 
             end
-        endcase
-        
+        end else begin
+            rSensorDecision <= survivalSTOP;
+        end
     end
 
+
+    always @ (posedge clk) 
+    begin
+
+        if (stateReady && ~rAccelerationReady) begin
+            case (state)
+                STRAIGHT: 
+                begin
+                    rAccelerationA <= ACCELERATIONSPEED ;
+                    rAccelerationB <= ACCELERATIONSPEED ; 
+                    rAccelerationReady <= 1;
+                    rActionCount <= 1_000_000;
+                    rStateCount<= 0;
+                end
+
+                TURNLEFT: 
+                begin
+                    rAccelerationA <= ACCELERATIONSPEED;
+                    rAccelerationB <= DECELERATIONSPEED ; 
+                    rAccelerationReady <= 1;
+                    rActionCount <= 1_000_000;
+                    rStateCount<= 0;
+                end  
+
+                TURNRIGHT: 
+                begin
+                    rAccelerationA <= ACCELERATIONSPEED;
+                    rAccelerationB <= DECELERATIONSPEED ; 
+                    rAccelerationReady <= 1;
+                    rActionCount <= 1_000_000;
+                    rStateCount<= 0;
+                end  
+
+                UTURN: 
+                begin
+                    rAccelerationA <= ACCELERATIONSPEED;
+                    rAccelerationB <= DECELERATIONSPEED ; 
+                    rAccelerationReady <= 1;
+                    rActionCount <= 1_000_000;
+                    rStateCount<= 0;
+                end 
+
+                STOP: 
+                begin
+                    rAccelerationA <= 0;
+                    rAccelerationB <= 0 ; 
+                    rAccelerationReady <= 1;
+                    rMotorStop <= 1;
+                    rActionCount <= 1_000_000;
+                    rStateCount<= 0;
+                end  
+
+                SURVIVAL: 
+                begin
+
+                    case (rSensorDecision)
+
+                        survivalRIGHT:
+                        begin
+                            rAccelerationA <= ACCELERATIONSPEED;
+                            rAccelerationB <= ACCELERATIONSPEED ; 
+                            rAccelerationReady <= 1;
+                            rMotorStop <= 1;
+                            rActionCount <= 1_500_000;
+                            rStateCount<= 0;
+                        end
+                        survivalLEFT:
+                        begin
+                            rAccelerationA <= 0;
+                            rAccelerationB <= 0 ; 
+                            rAccelerationReady <= 1;
+                            rMotorStop <= 1;
+                            rActionCount <= 1_000_000;
+                            rStateCount<= 0;
+                        end
+                        survivalSTRAIGHT:
+                        begin
+                            rAccelerationA <= 0;
+                            rAccelerationB <= 0 ; 
+                            rAccelerationReady <= 1;
+                            rMotorStop <= 1;
+                            rActionCount <= 1_000_000;
+                            rStateCount<= 0;
+                        end
+                        survivalSTOP:
+                        begin
+                            rAccelerationA <= 0;
+                            rAccelerationB <= 0 ; 
+                            rAccelerationReady <= 1;
+                            rMotorStop <= 1;
+                            rActionCount <= 1_000_000;
+                            rStateCount<= 0;
+                        end
+                        
+                        
+                    endcase
+                end  
+
+                FORWARD: 
+                begin
+                    rAccelerationA <= ACCELERATIONSPEED;
+                    rAccelerationB <= DECELERATIONSPEED ; 
+                    rAccelerationReady <= 1;
+                    rActionCount <= 1_000_000;
+                    rStateCount<= 0;
+                end
+
+                LEFT: 
+                begin
+                    rAccelerationA <= ACCELERATIONSPEED;
+                    rAccelerationB <= DECELERATIONSPEED ; 
+                    rAccelerationReady <= 1;
+                    rActionCount <= 1_000_000;
+                    rStateCount<= 0;
+                end  
+
+                RIGHT: 
+                begin
+                    rAccelerationA <= ACCELERATIONSPEED;
+                    rAccelerationB <= DECELERATIONSPEED ; 
+                    rAccelerationReady <= 1;
+                    rActionCount <= 1_000_000;
+                    rStateCount<= 0;
+                end  
+
+                BACKWARD: 
+                begin
+                    rAccelerationA <= ACCELERATIONSPEED;
+                    rAccelerationB <= DECELERATIONSPEED ; 
+                    rAccelerationReady <= 1;
+                    rActionCount <= 1_000_000;
+                    rStateCount<= 0;
+                end    
+
+            endcase
+        end if (rAccelerationReady) begin
+            rStateCount <= rStateCount + 1;
+            if (rStateCount == rActionCount) begin
+                rAccelerationReady <= 0;
+            end
+        end
+    end
+
+    
 endmodule

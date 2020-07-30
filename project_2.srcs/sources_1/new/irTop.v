@@ -11,8 +11,6 @@ module irTop(
     
      );
 
-    reg [3:0] rRemoteInput ; // final output state
-
     wire remoteBuffer;
 
     wire remoteInput; // This is the IR input that we want to be reading
@@ -43,10 +41,10 @@ module irTop(
     ); 
                                     
 
-    stateEncoder changeState (      .clk100khz(clk100khz),
+    remoteEncoder interpretRemote ( .clk100khz(clk100khz),
                                     .remoteReading(remoteReading),
                                     .ready(ready),
-                                    .remoteInputs(rRemoteInput),
+                                    .remoteInputs(remoteInput),
                                     .remoteReady(remoteReady)
     );
     
