@@ -4,18 +4,19 @@
 module irTop(
 
     input wire clk,
-    input wire irSensor,
-    output wire stateReady,
-    output wire [3:0] outpState,
+    input wire remoteSensor,
+    output wire remoteReady,
+    output wire [3:0] remoteInputs,
     output wire LED0
     
      );
 
-    reg [3:0] rState ; // final output state
+    reg [3:0] rRemoteInput ; // final output state
 
-    wire irBuffer;
-    wire irBuffer2;
-    wire irInput; // This is the IR input that we want to be reading
+    wire remoteBuffer;
+
+    wire remoteInput; // This is the IR input that we want to be reading
+
     wire clk100khz; // Clock used for the IR input
 
     wire ready;
@@ -25,26 +26,28 @@ module irTop(
     newClk #(500) clkNew (          .FPGAclk(clk), 
                                     .signal(clk100khz));
 
-    d_ff d_ff_irSensor1 (           .inpSignal(irSensor), 
+    d_ff d_ff_irSensor1 (           .inpSignal(remoteSensor), 
                                     .clk(clk100khz), 
-                                    .outpSignal(irBuffer)) ;
+                                    .outpSignal(remoteBuffer)) ;
 
     inverter signalInvert (         .clk100khz(clk100khz),
-                                    .inputSignal(irBuffer), 
-                                    .invertedInput(irInput)) ;
+                                    .inputSignal(remoteBuffer), 
+                                    .invertedInput(remoteInput)) ;
                                     
-    assign LED0 = irInput ; 
+    assign LED0 = remoteInput ; 
     
     irSensor irSensorLogic (        .clk100khz(clk100khz), 
-                                    .irInput(irInput), 
+                                    .remoteInput(remoteInput), 
                                     .remoteReading(remoteReading),
-                                    .ready(ready)); 
+                                    .ready(ready)
+    ); 
                                     
 
     stateEncoder changeState (      .clk100khz(clk100khz),
                                     .remoteReading(remoteReading),
                                     .ready(ready),
-                                    .outpState(outpState),
-                                    .stateReady(stateReady));
+                                    .remoteInputs(rRemoteInput),
+                                    .remoteReady(remoteReady)
+    );
     
 endmodule

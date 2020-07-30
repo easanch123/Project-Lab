@@ -4,7 +4,7 @@
 module irSensor(
 
         input wire clk100khz,
-        input wire irInput,
+        input wire remoteInput,
         output wire [11:0] remoteReading,
         output wire ready
 

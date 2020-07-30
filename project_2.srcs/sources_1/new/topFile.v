@@ -25,8 +25,8 @@
 module topFile(
 
     input wire clk,                         // FPGA internal clock
-    input wire irSensor,                    // IR sensor input
-
+    input wire remoteSensor,                    // IR sensor input
+    input wire distanceSensor,
     output wire [6:0]seg,                   // 7 segment display
     output wire dp,                         // decimal point on the 7 segment display 
     output wire [3:0] an,                   // anode for the 7 segment display
@@ -37,84 +37,105 @@ module topFile(
     
     output wire ENA, ENB, IN1, IN2, IN3, IN4, // used to control the motors]]
     
-    input wire sw0, // switch for debugging
-    
-    output wire LED2, LED3, LED4
+    output wire LED2, LED3, LED4, LED5, LED6
     
     );
+
+
+    wire remoteReady;
+    wire motorReady;
+    wire motorStop;
+    wire survivalMode;
+
+    wire [3:0] remoteInputs;
+    wire [2:0] metalInputs;
+
+    wire [4:0] state;
     wire stateReady;
-    wire [3:0] currentState;
-    wire [1:0] speedChange;
 
     wire [7:0] dutyA ; 
     wire [7:0] dutyB ; 
-    
-    wire [3:0] debugPass;
-    
-    wire sw0Buffer;
-    wire sw0Final;
+
 
     irTop IRSensorLogic (                   .clk(clk),
-                                            .irSensor(irSensor),
-                                            .outpState(currentState),
-                                            .stateReady(stateReady),
+                                            .remoteSensor(remoteSensor),
+                                            .remoteReady(remoteReady),
+                                            .remoteInputs(remoteInputs),
                                             .LED0(LED0)
     );
+    
+    stateSensors setState      (            .clk(clk),
+                                            .remoteInputs(remoteInputs),
+                                            .remoteReady(remoteReady),
+                                            .motorReady(motorReady),
+                                            .motorStop(motorStop),
+                                            .survivalMode(survivalMode),
+                                            .state(state),
+                                            .stateReady(stateReady)
 
-
+    );
 
     sevenSegmentDisplay sevenSegment (      .clk(clk),
+                                            .state(state),
                                             .stateReady(stateReady),
-                                            .currentState(currentState),
                                             .seg(seg),
                                             .dp(dp),
                                             .anode(an)
     );
+
     
-    d_ff d_ff1 (                    .inpSignal(sw0), 
-                                    .clk(clk), 
-                                    .outpSignal(sw0Buffer)) ;
-    
-    d_ff d_ff2 (                    .inpSignal(sw0Buffer), 
-                                    .clk(clk), 
-                                    .outpSignal(sw0Final)) ;
-    
-    assign debugPass = ( sw0Final==1 ) ? (4'd0) : (4'd5) ; 
-    
-    stateSensors getSpeedState(             .clk(clk),
+
+
+    cleanInputs inputCleaning   (           .clk(clk),
                                             .lSensor(lSensor),
                                             .mSensor(mSensor),
                                             .rSensor(rSensor),
-                                            .state(debugPass),
-                                            .speedChange(speedChange),
-                                            .LED2(LED2),
-                                            .LED3(LED3),
-                                            .LED4(LED4)
+                                            .distanceSensor(distanceSensor),
+                                            .metalInputs(metalInputs),
+                                            .distanceInput(distanceInput),
+                                            .LED2(LED2), // lsensor 
+                                            .LED3(LED3), // msensor
+                                            .LED4(LED4), // rsensor
+                                            .LED5(LED5), // distance sensor
+                                            .LED6(LED6) // stall sensor
+
 
     );
 
 
-    // 
-    setExecuteState setExecutingState(      .clk(clk),
-                                            .state(currentState),
-                                            .speedChange(speedChange),
-                                            .dutyA(dutyA),
-                                            .dutyB(dutyB)
+    stateExecute setExecutingState(         .clk(clk),
 
+                                            .stateReady(stateReady),
+                                            .state(state),
 
+                                            .motorReady(motorReady),
+                                            .motorStop(motorStop),
+
+                                            .distanceSensor(distanceSensor),
+                                            .metalInputs(metalInputs),
+                                            .distanceInput(distanceInput),
+
+                                            .accelerationA(accelerationA),
+                                            .accelerationB(accelerationB),
+                                            .accelerationReady(accelerationReady)
     );
     
-    executeState executingState (           .clk(clk), 
-                                            .state(currentState),
-                                            .speedChange(speedChange),
-                                            .dutyA(dutyA),
-                                            .dutyB(dutyB),
+    
+
+    
+    motorDriver executingState (           .clk(clk), 
                                             .ENA(ENA),
                                             .ENB(ENB),
                                             .IN1(IN1),
                                             .IN2(IN2),
                                             .IN3(IN3),
-                                            .IN4(IN4) 
+                                            .IN4(IN4),
+
+                                            .accelerationA(accelerationA),
+                                            .accelerationB(accelerationB),
+                                            .accelerationReady(accelerationReady),
+
+                                            .motorStop(motorStop)
     );
     
     

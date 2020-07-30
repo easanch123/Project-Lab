@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module executeState(
+module motorDriver(
     input wire clk,
     input wire [3:0] state,
     input wire [1:0] speedChange,
@@ -102,39 +102,9 @@ module executeState(
             
             rIN3 <= 1;// orient motor B so that it moves backwards 
             rIN4 <= 0; // orient motor B so that it moves backwards 
-            end
-        SURVIVAL:
-            begin
-            rENA <= A ; // turn on motor
-            rENB <=  B  ;  // turn on motor
-            
-            case (speedChange)
-            survivalFORWARD: 
-            begin
-            rIN1 <= 1; // orient motor A so that it moves forward
-            rIN2 <= 0; // orient motor A so that it moves forward 
-            
-            rIN3 <= 0;// orient motor B so that it moves forward 
-            rIN4 <= 1; // orient motor B so that it moves forward 
-            end
-            survivalRIGHT:
-            begin
-            rIN1 <= 0; // orient motor A so that it moves forward
-            rIN2 <= 1; // orient motor A so that it moves forward 
-            
-            rIN3 <= 0;// orient motor B so that it moves backward 
-            rIN4 <= 1; // orient motor B so that it moves backward 
-            end
-            survivalLEFT:
-            begin
-            rIN1 <= 1; // orient motor A so that it moves backwards
-            rIN2 <= 0; // orient motor A so that it moves backwards 
-            
-            rIN3 <= 1;// orient motor B so that it moves forward 
-            rIN4 <= 0; // orient motor B so that it moves forward 
-            end
-            endcase 
-            end
+            end 
+
+
         default:
             begin
             rENA <= 0 ; // turn off motor

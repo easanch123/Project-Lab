@@ -24,122 +24,196 @@
 
 module setExecuteState(
     input wire clk,
-    input wire [3:0] state,
-    input wire [1:0] speedChange,
-    output wire [7:0] dutyA,
-    output wire [7:0] dutyB
-    );
+    input wire [4:0] state,
+    input wire stateReady,
+    input wire distanceInput,
+    input wire [2:0] metalInputs,
 
-        localparam SURVIVAL = 4'b0000 ;
+    output wire motorReady,
 
-        localparam FORWARD = 2'd0 ;
-        localparam LEFT = 2'd1 ;
-        localparam RIGHT = 2'd2 ;
-        localparam STOP = 2'd03 ;
+    output wire motorStop
+    
+    output wire accelerationReady,
+
+    output wire [8:0] accelerationA,
+    output wire [8:0] accelerationB,
+
+    output wire velocityReady,
+
+    output wire [8:0] velocityA,
+    output wire [8:0] velocityB
+
+);
+
+    // User-Input States
+    localparam FORWARD = 5'd02 ;
+    localparam STOP = 5'd03 ; // same as wait state
+    localparam LEFT = 5'd04 ;
+    localparam ABOUTFACE = 5'd05 ;
+    localparam RIGHT = 5'd06 ;
+    localparam BACKWARD = 5'd08 ;
+
+    // Survival States
+    localparam SURVIVAL = 5'd0 ; 
+    localparam TRACKING = 5'd12;
+    localparam STRAIGHT = 5'd07;
+    localparam TURNLEFT = 5'd09;
+    localparam TURNRIGHT = 5'd10;
+    localparam UTURN = 5'd11;
+
+    // Movement Controls   
+    localparam ACCELERATION = 1;
+    localparam DECCELERATION = -1;
+
+    reg [4:0] localState = 3;
+
+    reg [8:0] rAccelerationA;
+    reg [8:0] rAccelerationB;
+
+    reg rAccelerationReady;
+    reg rStopReady;
+    reg rMotorReady;
+    reg rMotorStop;
+    reg rSurvival; 
+    reg rStateReady;
+
+    reg [16:0] rCounter;
+
+    reg rst = 1;
+
+    initial 
+    begin
+        rAccelerationA = 0 ;
+        rAccelerationB = 0 ;
+        rAccelerationReady = 0 ;
+        rMotorReady = 0 ;
+        rStopReady = 0;
+    end
+
+    always @ (posedge stateReady) 
+    begin
+
+
+    end
+
+    always @ (posedge clk)
+    begin
+
+        // if the state changes in the upper module, then that means a user input has been 
+        // given. We only care about a user input if we are ready to execute a new task
+        // However, we will only get stateReady = 1 if the motor is Ready
         
-
-        localparam MAXSPEED = 8'd160 ; 
-        localparam MINSPEED = 8'd135 ; 
-        localparam DECREASE_STEP = 8'd1;
-        localparam INCREASE_STEP = 8'd1;
-        
-        wire clk5khz;
-        
-        newClk #(10000) clkNew (            .FPGAclk(clk), 
-                                            .signal(clk5khz));
-
-        reg [7:0] rDutyA;
-        reg [7:0] rDutyB;
-        
-        reg [7:0] rMotorACounter;
-        reg [7:0] rMotorBCounter;
-
-        reg [7:0] stepR;
-        reg [7:0] stepL;
-
-        initial begin
-            rDutyA = 8'd150 ;
-            rDutyB = 8'd150 ; 
-            rMotorACounter= 0;
-            rMotorBCounter = 0;
-            stepR = 0;
-            stepL = 0;
-        end
-
-        assign dutyA = rDutyA;
-        assign dutyB = rDutyB;
-
-        always @ (posedge clk5khz)
+        // state gets updated when we have a valid state and when our motor is ready
+        // to take in a new state for execution
+        if (stateReady) 
         begin
-            if (state==SURVIVAL)
-            begin
-                case(speedChange)
-
-                    FORWARD :  
-                    begin
-                        stepR <= (rDutyA < MAXSPEED) ? (INCREASE_STEP) : (0);
-                        stepL <= (rDutyB < MAXSPEED) ? (INCREASE_STEP) : (0);
-                        
-                        // rDutyA<= 8'd150 ;
-                        // rDutyB <= 8'd150 ;
-                    end
-
-                    LEFT :  
-                    begin
-                    // rDutyA<= 8'd150 ;
-                    // rDutyB <= 8'd150 ;
-                        stepR <= (rDutyA < MAXSPEED) ? (INCREASE_STEP) : (0);
-                        stepL <= (rDutyB > MINSPEED) ? (-DECREASE_STEP) : (0);
-                    end
-
-                    RIGHT :  
-                    begin
-                        // rDutyA<= 8'd150 ;
-                        // rDutyB <= 8'd150 ;
-                        stepR <= (rDutyA > MINSPEED) ? (-DECREASE_STEP) : (0) ;
-                        stepL <= (rDutyB < MAXSPEED) ? (INCREASE_STEP) : (0) ;
-                    end
-
-                    STOP :  
-                    begin
-                        // rDutyA<= 8'd0 ;
-                        // rDutyB <= 8'd0 ;
-                        stepR <= (rDutyA > MINSPEED) ? (-DECREASE_STEP) : (0);
-                        stepL <= (rDutyB > MINSPEED) ? (-DECREASE_STEP) : (0);
-                    end
-
-                endcase
-
-                if (stepR > 0) 
-                begin
-                    rDutyA <= ( rDutyA > MAXSPEED) ? (MAXSPEED) : ( rDutyA + stepR ) ; 
-                end else if (stepR < 0) 
-                begin
-                    rDutyA <= ( rDutyA < MINSPEED) ? (MINSPEED) : ( rDutyA + stepR ) ;
-                end
-
-                if (stepL > 0) 
-                begin
-                    rDutyB <= ( rDutyB > MAXSPEED) ? (MAXSPEED) : ( rDutyB + stepL ) ; 
-                end else if (stepL < 0) 
-                begin
-                    rDutyB <= ( rDutyB < MINSPEED) ? (MINSPEED) : ( rDutyB + stepL ) ; 
-                end
-                
-                
-                
-            end else begin
-                rDutyA <= 8'd160 ; 
-                rDutyB <= 8'd160;
-            end
-            
+            localState <= state ;
+            rCounter <= 1; 
+            rst <= 1;
         end
+        // if our reset signal is on, this means that we have finished executing a 
+        // complete step and so we want to reset the signal. 
+        // Purpose: change motor ready to 1 so that we can get a new statready
+        if (rst) 
+        begin
+            rAccelerationReady <= 0;
+            rMotorReady <= 1;
+            if (~stateReady) // as soon as stateReady goes to 0, then we begin the journey of state execution
+            begin
+                rst <= 0 ;
+            end
+        end
+        
+        // If we have successfully reset the signals. 
+        if (~rst)
+        begin
 
+            if (~rSurvival)
+            begin
+                case (localState)
 
+                    FORWARD: 
+                    begin
+                        rSurvival <= 0;
+                        rAccelerationA <= ACCELERATION;
+                        rAccelerationB <= ACCELERATION;
+                        rAccelerationReady <= 1;
+                        rMotorStop<= 0;
+                        rst <= 1;
+                        
+                    end
 
+                    STOP:
+                    begin
+                        rSurvival <= 0;
+                        rMotorStop <= 1;
+                        rst <= 1;
+                    end
 
+                    SURVIVAL:
+                    begin
+                        rSurvival <= 1;
+                    end
 
+                    LEFT: 
+                    begin
+                        rSurvival <= 0;
+                        rAccelerationA <= ACCELERATION;
+                        rAccelerationB <= DECCELERATION;
+                        rAccelerationReady <= 1; 
+                        rMotorStop <= 0;
+                        rst <= 1;
+                    end  
 
+                    RIGHT: 
+                    begin
+                        rSurvival <= 0;
+                        rAccelerationA <= DECCELERATION;
+                        rAccelerationB <= ACCELERATION;
+                        rAccelerationReady <= 1; 
+                        rMotorStop <= 0 ;
+                        rst <= 1;
+                    end  
+
+                    BACKWARD: 
+                    begin
+                        rSurvival <= 0;
+                        rAccelerationA <= DECCELERATION;
+                        rAccelerationB <= DECCELERATION;
+                        rAccelerationReady <= 1; 
+                        rMotorStop <= 0;
+                        rst <= 1;
+                    end    
+                endcase 
+            end else begin
+
+                case (localState)
+                    STRAIGHT: 
+                    begin
+                        rState <= STRAIGHT;
+                        rStateReady <= 1;
+                    end
+
+                    TURNLEFT: 
+                    begin
+                        rState <= TURNLEFT;
+                        rStateReady <= 1;
+                    end  
+
+                    TURNRIGHT: 
+                    begin
+                        rState <= TURNRIGHT;
+                        rStateReady <= 1;
+                    end  
+
+                    UTURN: 
+                    begin
+                        rState <= UTURN;
+                        rStateReady <= 1;
+                    end 
+                endcase
+            end
+        end
 
 
 
