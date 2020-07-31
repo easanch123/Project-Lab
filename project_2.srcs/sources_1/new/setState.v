@@ -42,48 +42,40 @@ module setState (
        input wire motorStop,
        
        output wire survivalMode,   
-       output wire [4:0] state,
+       output wire [3:0] state,
        output wire stateReady
        
     );
 
     // User-Input States
-    localparam FORWARD = 5'd02 ;
-    localparam STOP = 5'd03 ; 
-    localparam LEFT = 5'd04 ;
-    localparam ABOUTFACE = 5'd05 ;
-    localparam RIGHT = 5'd06 ;
-    localparam BACKWARD = 5'd08 ;
+    localparam FORWARD = 4'd02 ;
+    localparam STOP = 4'd05 ; 
+    localparam LEFT = 4'd04 ;
+    localparam RIGHT = 4'd06 ;
+    localparam BACKWARD = 4'd01 ;
+    localparam SURVIVAL = 4'd0 ;
+    localparam TRACKING = 4'd3;
 
-    // Survival States
-    localparam SURVIVAL = 5'd0 ; 
-    localparam TRACKING = 5'd12;
-    localparam STRAIGHT = 5'd07;
-    localparam TURNLEFT = 5'd09;
-    localparam TURNRIGHT = 5'd10;
-    localparam UTURN = 5'd11;
     
-    reg [4:0] rState ;
+    reg [3:0] rState ;
     reg rStateReady;
     reg rSurvivalMode ;
+    wire Tracking, WaitCondition, WaitSurvival, WaitNormal;
 
     assign stateReady = rStateReady ;
     assign state = rState ;
+    assign survivalMode = rSurvivalMode;
 
     wire UserInputReady;
 
-    assign survivalMode = rSurvivalMode;
-    
-    wire Tracking, WaitCondition, WaitSurvival, WaitNormal;
-
-    assign Tracking = ((rState==STRAIGHT || rState==TURNLEFT || rState==TURNRIGHT || rState==UTURN || rState==SURVIVAL) && (~rStateReady && rSurvivalMode && motorReady && ~motorStop))  ;
+    assign Tracking = ((~rStateReady && rSurvivalMode && motorReady && ~motorStop))  ;
     assign WaitCondition = (motorStop && ~rStateReady && remoteReady && motorReady); // ListenCondition
     assign WaitSurvival = (WaitCondition && rSurvivalMode) ;
     assign WaitNormal =  (WaitCondition && ~rSurvivalMode) ; 
 
     initial 
     begin
-        rState = 3;
+        rState = 5;
         rStateReady = 0;
         rSurvivalMode = 0;
     end
@@ -107,29 +99,35 @@ module setState (
             end else if (WaitSurvival)
             begin
                 case (remoteInputs)
-                    STRAIGHT: 
+                    FORWARD: 
                     begin
-                        rState <= STRAIGHT;
+                        rState <= FORWARD;
                         rStateReady <= 1;
                     end
 
-                    TURNLEFT: 
+                    LEFT: 
                     begin
-                        rState <= TURNLEFT;
+                        rState <= LEFT ; 
                         rStateReady <= 1;
                     end  
 
-                    TURNRIGHT: 
+                    RIGHT: 
                     begin
-                        rState <= TURNRIGHT;
+                        rState <= RIGHT;
                         rStateReady <= 1;
                     end  
 
-                    UTURN: 
+                    BACKWARD: 
                     begin
-                        rState <= UTURN;
+                        rState <= BACKWARD;
                         rStateReady <= 1;
-                    end 
+                    end    
+                    
+                    STOP: 
+                    begin
+                        rState <= STOP;
+                        rStateReady <= 1;
+                    end  
 
                     SURVIVAL: 
                     begin

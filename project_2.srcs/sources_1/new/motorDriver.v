@@ -22,8 +22,8 @@
 
 module motorDriver(
     input wire clk,
-    input wire accelerationA,
-    input wire accelerationB,
+    input wire [2:0] accelerationA,
+    input wire [2:0] accelerationB,
     input wire accelerationReady,
     input wire motorStop,
     output wire ENA, ENB, IN1, IN2, IN3, IN4

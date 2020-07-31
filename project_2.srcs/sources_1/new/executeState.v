@@ -28,32 +28,25 @@ module executeState (
 
     output wire motorReady,
     output wire motorStop,
-
-    input wire distanceSensor,
+    
     input wire [2:0] metalInputs,
-    input wire distanceInputs,
+    input wire distanceInput,
+    input wire stallInput,
 
     output wire [2:0] accelerationA,
     output wire [2:0] accelerationB,
     output wire accelerationReady 
     
     );
-    
+   
     // User-Input States
-    localparam FORWARD = 5'd02 ;
-    localparam STOP = 5'd03 ; 
-    localparam LEFT = 5'd04 ;
-    localparam ABOUTFACE = 5'd05 ;
-    localparam RIGHT = 5'd06 ;
-    localparam BACKWARD = 5'd08 ;
-
-    // Survival States
-    localparam SURVIVAL = 5'd0 ; 
-    localparam TRACKING = 5'd12;
-    localparam STRAIGHT = 5'd07;
-    localparam TURNLEFT = 5'd09;
-    localparam TURNRIGHT = 5'd10;
-    localparam UTURN = 5'd11;
+    localparam FORWARD = 4'd02 ;
+    localparam STOP = 4'd05 ; 
+    localparam LEFT = 4'd04 ;
+    localparam RIGHT = 4'd06 ;
+    localparam BACKWARD = 4'd01 ;
+    localparam SURVIVAL = 4'd0 ;
+    localparam TRACKING = 4'd3;
     
 
     localparam survivalRIGHT = 0;
@@ -68,12 +61,11 @@ module executeState (
     reg rAccelerationReady;
     reg [2:0] rAccelerationA;
     reg [2:0] rAccelerationB;
-    
-    reg rMotorReady;
+
     reg rMotorStop;
 
     reg [32:0] rStateCount;
-
+    reg [1:0] rSensorDecision; 
     reg [32:0] rActionCount;
 
     assign motorReady = ~rAccelerationReady;
@@ -82,14 +74,11 @@ module executeState (
     assign accelerationA = rAccelerationA;
     assign accelerationB = rAccelerationB;
 
-    reg [1:0] rSensorDecision; 
     
- 
-
+   
     initial 
     begin
         rAccelerationReady = 0;
-        rMotorReady = 0;
         rMotorStop = 0;
     end
     
@@ -97,23 +86,23 @@ module executeState (
 
     always @ (posedge clk)
     begin
-        if (metalInputs[1]) // if the middle is active
+        if (~rMotorStop) 
         begin
-            if (metalInputs[0] && ~metalInputs[2]) // if the middle and the left is activated, then we need to turn right
+            if (metalInputs[1]) // if the middle is active
             begin
-                rSensorDecision <= survivalRIGHT;
-            end else if (metalInputs[2] && ~metalInputs[0])
-            begin
-                rSensorDecision <= survivalLEFT ;
-            end else if (metalInputs[2] && metalInputs[0]) 
-            begin
-                rSensorDecision <= survivalSTOP ; 
-            end else if (metalInputs[2] && metalInputs[0]) 
-            begin
-                rSensorDecision <= survivalSTRAIGHT ; 
+                if (metalInputs[0] && ~metalInputs[2]) // if the middle and the left is activated, then we need to turn right
+                begin
+                    rSensorDecision <= survivalRIGHT;
+                end else if (metalInputs[2] && ~metalInputs[0])
+                begin
+                    rSensorDecision <= survivalLEFT ;
+                end else if (metalInputs[2] && metalInputs[0]) 
+                begin
+                    rSensorDecision <= survivalSTOP ; 
+                end 
+            end else begin
+                rSensorDecision <= survivalSTOP;
             end
-        end else begin
-            rSensorDecision <= survivalSTOP;
         end
     end
 
@@ -123,42 +112,7 @@ module executeState (
 
         if (stateReady && ~rAccelerationReady) begin
             case (state)
-                STRAIGHT: 
-                begin
-                    rAccelerationA <= ACCELERATIONSPEED ;
-                    rAccelerationB <= ACCELERATIONSPEED ; 
-                    rAccelerationReady <= 1;
-                    rActionCount <= 1_000_000;
-                    rStateCount<= 0;
-                end
-
-                TURNLEFT: 
-                begin
-                    rAccelerationA <= ACCELERATIONSPEED;
-                    rAccelerationB <= DECELERATIONSPEED ; 
-                    rAccelerationReady <= 1;
-                    rActionCount <= 1_000_000;
-                    rStateCount<= 0;
-                end  
-
-                TURNRIGHT: 
-                begin
-                    rAccelerationA <= ACCELERATIONSPEED;
-                    rAccelerationB <= DECELERATIONSPEED ; 
-                    rAccelerationReady <= 1;
-                    rActionCount <= 1_000_000;
-                    rStateCount<= 0;
-                end  
-
-                UTURN: 
-                begin
-                    rAccelerationA <= ACCELERATIONSPEED;
-                    rAccelerationB <= DECELERATIONSPEED ; 
-                    rAccelerationReady <= 1;
-                    rActionCount <= 1_000_000;
-                    rStateCount<= 0;
-                end 
-
+            
                 STOP: 
                 begin
                     rAccelerationA <= 0;
@@ -177,27 +131,27 @@ module executeState (
                         survivalRIGHT:
                         begin
                             rAccelerationA <= ACCELERATIONSPEED;
-                            rAccelerationB <= ACCELERATIONSPEED ; 
+                            rAccelerationB <= DECELERATIONSPEED ; 
                             rAccelerationReady <= 1;
-                            rMotorStop <= 1;
                             rActionCount <= 1_500_000;
                             rStateCount<= 0;
+                            rMotorStop <= 0;
                         end
                         survivalLEFT:
                         begin
-                            rAccelerationA <= 0;
-                            rAccelerationB <= 0 ; 
+                            rAccelerationA <= DECELERATIONSPEED ;
+                            rAccelerationB <= ACCELERATIONSPEED ; 
                             rAccelerationReady <= 1;
-                            rMotorStop <= 1;
+                            rMotorStop <= 0;
                             rActionCount <= 1_000_000;
                             rStateCount<= 0;
                         end
                         survivalSTRAIGHT:
                         begin
-                            rAccelerationA <= 0;
-                            rAccelerationB <= 0 ; 
+                            rAccelerationA <= ACCELERATIONSPEED ;
+                            rAccelerationB <= ACCELERATIONSPEED ; 
                             rAccelerationReady <= 1;
-                            rMotorStop <= 1;
+                            rMotorStop <= 0;
                             rActionCount <= 1_000_000;
                             rStateCount<= 0;
                         end
@@ -218,19 +172,21 @@ module executeState (
                 FORWARD: 
                 begin
                     rAccelerationA <= ACCELERATIONSPEED;
-                    rAccelerationB <= DECELERATIONSPEED ; 
+                    rAccelerationB <= ACCELERATIONSPEED ; 
                     rAccelerationReady <= 1;
                     rActionCount <= 1_000_000;
                     rStateCount<= 0;
+                    rMotorStop <= 0;
                 end
 
                 LEFT: 
                 begin
-                    rAccelerationA <= ACCELERATIONSPEED;
-                    rAccelerationB <= DECELERATIONSPEED ; 
+                    rAccelerationA <= DECELERATIONSPEED;
+                    rAccelerationB <= ACCELERATIONSPEED ; 
                     rAccelerationReady <= 1;
                     rActionCount <= 1_000_000;
                     rStateCount<= 0;
+                    rMotorStop <= 0;
                 end  
 
                 RIGHT: 
@@ -240,15 +196,17 @@ module executeState (
                     rAccelerationReady <= 1;
                     rActionCount <= 1_000_000;
                     rStateCount<= 0;
+                    rMotorStop <= 0;
                 end  
 
                 BACKWARD: 
                 begin
-                    rAccelerationA <= ACCELERATIONSPEED;
+                    rAccelerationA <= DECELERATIONSPEED;
                     rAccelerationB <= DECELERATIONSPEED ; 
                     rAccelerationReady <= 1;
                     rActionCount <= 1_000_000;
                     rStateCount<= 0;
+                    rMotorStop <= 0;
                 end    
 
             endcase

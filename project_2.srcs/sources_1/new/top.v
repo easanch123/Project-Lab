@@ -52,7 +52,7 @@ module top(
     wire stallInput; 
     wire distanceInput;
 
-    wire [4:0] state;
+    wire [3:0] state;
     wire stateReady;
 
     wire [7:0] dutyA ; 

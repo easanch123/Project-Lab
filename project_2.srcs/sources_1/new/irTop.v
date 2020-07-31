@@ -44,7 +44,7 @@ module irTop(
     remoteEncoder interpretRemote ( .clk100khz(clk100khz),
                                     .remoteReading(remoteReading),
                                     .ready(ready),
-                                    .remoteInputs(remoteInput),
+                                    .remoteInputs(remoteInputs),
                                     .remoteReady(remoteReady)
     );
     
