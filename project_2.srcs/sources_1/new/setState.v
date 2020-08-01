@@ -38,10 +38,11 @@ module setState (
 
        input wire [3:0] remoteInputs,
        input wire remoteReady,
-       input wire motorReady,
-       input wire motorStop,
        
-       output wire survivalMode,   
+       input wire [2:0] pathCorrection,
+       input wire motorStop,
+
+       output wire survivalMode,
        output wire [3:0] state,
        output wire stateReady
        
@@ -52,53 +53,103 @@ module setState (
     localparam STOP = 4'd05 ; 
     localparam LEFT = 4'd04 ;
     localparam RIGHT = 4'd06 ;
-    localparam BACKWARD = 4'd01 ;
+    localparam BACKWARD = 4'd08 ;
     localparam SURVIVAL = 4'd0 ;
-    localparam TRACKING = 4'd3;
-
     
+//    localparam TRACKING = 4'd3;
+    
+    localparam pathFORWARD = 3'd0 ;
+    localparam pathLEFT = 3'd1 ;
+    localparam pathRIGHT = 3'd2 ;
+    localparam pathSTOP = 3'd03 ;
+    localparam pathBACK = 3'd04 ;
+
     reg [3:0] rState ;
     reg rStateReady;
     reg rSurvivalMode ;
-    wire Tracking, WaitCondition, WaitSurvival, WaitNormal;
+ 
+    // wire Tracking, WaitCondition, WaitSurvival, WaitNormal;
 
     assign stateReady = rStateReady ;
     assign state = rState ;
     assign survivalMode = rSurvivalMode;
 
-    wire UserInputReady;
+//    wire UserInputReady;
 
-    assign Tracking = ((~rStateReady && rSurvivalMode && motorReady && ~motorStop))  ;
-    assign WaitCondition = (motorStop && ~rStateReady && remoteReady && motorReady); // ListenCondition
-    assign WaitSurvival = (WaitCondition && rSurvivalMode) ;
-    assign WaitNormal =  (WaitCondition && ~rSurvivalMode) ; 
+//    assign Tracking = ((rSurvivalMode && motorReady && ~motorStop))  ;
+//    assign WaitCondition = (motorStop && remoteReady && motorReady); // ListenCondition
+//    assign WaitSurvival = (WaitCondition && rSurvivalMode) ;
+//    assign WaitNormal =  (WaitCondition && ~rSurvivalMode) ; 
 
     initial 
     begin
         rState = 5;
         rStateReady = 0;
-        rSurvivalMode = 0;
+        rSurvivalMode = 1;
     end
 
     always @ (posedge clk) 
     begin
-        // Reset the state ready output bit
-        if (rStateReady) 
+        
+        if (rStateReady)
         begin
-            rStateReady <= 0 ;
+            rStateReady<= 0;
+        end
 
-        end else begin
-            // Tracking means that we are in a position in which we need to update our state to the tracking state because we
-            // just finished making an intersection decision and now we are back on autopilot tracking
-            if (Tracking) 
+        if (~rStateReady)
+        begin
+            if (rSurvivalMode && ~remoteReady) // in survival mode and we dont have remote being read
             begin
-                rState <= TRACKING ;
-                rStateReady <= 1;
+                case (pathCorrection)
+                    pathSTOP: 
+                    begin
+                        rState <= STOP;
+                        rStateReady <= 1;
+                    end  
+                    
+                    pathFORWARD: 
+                    begin
+                        rState <= FORWARD;
+                        rStateReady <= 1;
+                    end
+
+                    pathLEFT: 
+                    begin
+                        rState <= LEFT ; 
+                        rStateReady <= 1;
+                    end  
+
+                    pathRIGHT: 
+                    begin
+                        rState <= RIGHT;
+                        rStateReady <= 1;
+                    end  
+
+                    pathBACK: 
+                    begin
+                        rState <= BACKWARD;
+                        rStateReady <= 1;
+                    end   
+                    
+                    default:
+                    begin
+                        rState <= STOP;
+                        rStateReady <= 1;
+                    end   
+                endcase
+            end 
             
-            // if we are in SurvivalWait, then we are awaiting input from the user
-            end else if (WaitSurvival)
+
+            if (rSurvivalMode && remoteReady) // in survival mode and we read a remote
             begin
+
                 case (remoteInputs)
+                    STOP: 
+                    begin
+                        rState <= STOP;
+                        rStateReady <= 1;
+                    end  
+                    
                     FORWARD: 
                     begin
                         rState <= FORWARD;
@@ -121,64 +172,81 @@ module setState (
                     begin
                         rState <= BACKWARD;
                         rStateReady <= 1;
-                    end    
-                    
-                    STOP: 
-                    begin
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end  
+                    end   
 
                     SURVIVAL: 
                     begin
-                        rSurvivalMode <= 0 ;
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end  
-                endcase
-            end else if (WaitNormal) 
-            begin
-                case (remoteInputs) 
-
-                    STOP: 
-                    begin
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end  
-
-                    SURVIVAL: 
-                    begin
-                        rSurvivalMode <= 1 ;
                         rState <= SURVIVAL;
                         rStateReady <= 1;
+                        rSurvivalMode <= 0;
+                    end   
+                    
+                    default:
+                    begin
+                        rState <= STOP;
+                        rStateReady <= 1;
+                    end   
+                        
+                endcase
+                
+            end
+            
+            if (~rSurvivalMode && remoteReady) // not in survival mode and we read a remote
+            begin
+                
+                case (remoteInputs)
+                    STOP: 
+                    begin
+                        rState <= STOP;
+                        rStateReady <= 1;
+                        rSurvivalMode <= 0;
                     end  
-
+                    
                     FORWARD: 
                     begin
                         rState <= FORWARD;
                         rStateReady <= 1;
+                        rSurvivalMode <= 0;
                     end
 
                     LEFT: 
                     begin
                         rState <= LEFT ; 
                         rStateReady <= 1;
+                        rSurvivalMode <= 0;
                     end  
 
                     RIGHT: 
                     begin
                         rState <= RIGHT;
                         rStateReady <= 1;
+                        rSurvivalMode <= 0;
                     end  
 
                     BACKWARD: 
                     begin
                         rState <= BACKWARD;
                         rStateReady <= 1;
-                    end    
+                        rSurvivalMode <= 0;
+                    end   
 
+                    SURVIVAL: 
+                    begin
+                        rState <= SURVIVAL;
+                        rStateReady <= 1;
+                        rSurvivalMode <= 1;
+                    end   
+
+                    default:
+                    begin
+                        rState <= STOP;
+                        rStateReady <= 1;
+                        rSurvivalMode <= 0;
+                    end   
+                        
                 endcase
             end
         end
     end
+
 endmodule

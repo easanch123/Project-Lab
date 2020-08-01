@@ -26,9 +26,9 @@ module top(
 
     input wire clk,                         // FPGA internal clock
     input wire remoteSensor,                    // IR sensor input
-    input wire distanceSensor,
+
     input wire lSensor, mSensor, rSensor,   // left middle and right sensors
-    input wire stallSensor,
+
     
     
     output wire [6:0]seg,                   // 7 segment display
@@ -37,9 +37,12 @@ module top(
     
     output wire ENA, ENB, IN1, IN2, IN3, IN4, // used to control the motors]]
     
-    output wire LED0, LED2, LED3, LED4, LED5, LED6
+    output wire LED0,LED2, LED3, LED4,
+    output wire LED7, LED8, LED9
+    
     
     );
+    
 
 
     wire remoteReady;
@@ -49,8 +52,6 @@ module top(
 
     wire [3:0] remoteInputs;
     wire [2:0] metalInputs;
-    wire stallInput; 
-    wire distanceInput;
 
     wire [3:0] state;
     wire stateReady;
@@ -58,34 +59,56 @@ module top(
     wire [7:0] dutyA ; 
     wire [7:0] dutyB ; 
     
-    wire [2:0] accelerationA;
-    wire [2:0] accelerationB;
+    wire signed [15:0] accelerationA;
+    wire signed [15:0] accelerationB;
     wire accelerationReady;
-
+    
+    wire [2:0] pathCorrection; 
+    
+    assign LED2 = metalInputs[0];
+    assign LED3 = metalInputs[1];
+    assign LED4 = metalInputs[2];
+    
+    assign LED7 = motorReady;
+    assign LED8 = motorStop;
+    
+    assign LED9 = survivalMode;
 
     irTop IRSensorLogic (                   .clk(clk),
                                             .remoteSensor(remoteSensor),
                                             .remoteReady(remoteReady),
                                             .remoteInputs(remoteInputs),
                                             .LED0(LED0)
+                                            
     );
     
+    cleanInputs inputCleaning   (           .clk(clk),
     
+                                            .lSensor(lSensor),
+                                            .mSensor(mSensor),
+                                            .rSensor(rSensor),
+                                            .metalInputs(metalInputs)
+    );
+    
+    sensorTracking pathTracking (           .clk(clk),
+                                            .metalInputs(metalInputs), // [2:0]
+                                            .pathCorrection(pathCorrection), // [1:0]
+                                            .survivalMode(survivalMode),
+                                            .motorStop(motorStop)
+);
     
     
     
     setState    stateDecision      (        .clk(clk),
                                             .remoteInputs(remoteInputs),
                                             .remoteReady(remoteReady),
-                                            .motorReady(motorReady),
-                                            .motorStop(motorStop),
+                                            .pathCorrection(pathCorrection),
                                             .survivalMode(survivalMode),
                                             .state(state),
-                                            .stateReady(stateReady)
+                                            .stateReady(stateReady),
+                                            .motorStop(motorStop)
     );
     
-    
-
     sevenSegmentDisplay sevenSegment (      .clk(clk),
                                             .state(state),
                                             .stateReady(stateReady),
@@ -94,41 +117,14 @@ module top(
                                             .anode(an)
     );
 
-    
-
-
-    cleanInputs inputCleaning   (           .clk(clk),
-    
-                                            .lSensor(lSensor),
-                                            .mSensor(mSensor),
-                                            .rSensor(rSensor),
-                                            .metalInputs(metalInputs),
-                                            
-                                            .distanceSensor(distanceSensor),
-                                            .distanceInput(distanceInput),
-                                            
-                                            .stallSensor(stallSensor),
-                                            .stallInput(stallInput),
-                                            
-                                            .LED2(LED2), // lsensor 
-                                            .LED3(LED3), // msensor
-                                            .LED4(LED4), // rsensor
-                                            .LED5(LED5), // distance sensor
-                                            .LED6(LED6) // stall sensor
-    );
-
 
     executeState stateExecute  (            .clk(clk),
 
-                                            .stateReady(stateReady),
                                             .state(state),
-
+                                            .stateReady(stateReady),
                                             .motorReady(motorReady),
-                                            .motorStop(motorStop),
                                             
-                                            .distanceInput(distanceInput),
-                                            .metalInputs(metalInputs),
-                                            .stallInput(stallInput),
+                                            .motorStop(motorStop),
                                             
                                             .accelerationA(accelerationA),
                                             .accelerationB(accelerationB),
@@ -150,7 +146,8 @@ module top(
                                             .accelerationB(accelerationB),
                                             .accelerationReady(accelerationReady),
 
-                                            .motorStop(motorStop)
+                                            .motorStop(motorStop),
+                                            .state(state)
     );
     
     

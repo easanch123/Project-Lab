@@ -46,16 +46,16 @@ module sevenSegmentDisplay(
           // Given the current state, update the segment register
           case (state)
     
-            5'd0 : rSeg <= 7'b1000000; // To display 0
-            5'd1 : rSeg <= 7'b1111001; // To display 1
-            5'd2 : rSeg <= 7'b0100100; // To display 2
-            5'd3 : rSeg <= 7'b0110000; // To display 3
-            5'd4 : rSeg <= 7'b0011001; // To display 4
-            5'd5 : rSeg <= 7'b0010010; // To display 5
-            5'd6 : rSeg <= 7'b0000010; // To display 6
-            5'd7 : rSeg <= 7'b1111000; // To display 7
-            5'd8 : rSeg <= 7'b0000000; // To display 8
-            5'd9 : rSeg <= 7'b0010000; // To display 9
+            4'd0 : rSeg <= 7'b1000000; // To display 0
+            4'd1 : rSeg <= 7'b1111001; // To display 1
+            4'd2 : rSeg <= 7'b0100100; // To display 2
+            4'd3 : rSeg <= 7'b0110000; // To display 3
+            4'd4 : rSeg <= 7'b0011001; // To display 4
+            4'd5 : rSeg <= 7'b0010010; // To display 5
+            4'd6 : rSeg <= 7'b0000010; // To display 6
+            4'd7 : rSeg <= 7'b1111000; // To display 7
+            4'd8 : rSeg <= 7'b0000000; // To display 8
+            4'd9 : rSeg <= 7'b0010000; // To display 9
             default : rSeg <= 7'b0111111; //dash
     
           endcase

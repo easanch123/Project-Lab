@@ -28,17 +28,27 @@
 // 128/255*100 is roughly 50%.
 // ===========================================================================
 module PWM(
-	input clk,
-	input [7:0] duty,
-	output reg PWM_output = 0
+	input wire clk,
+	input wire [7:0] duty,
+	output wire PWM_output
 );
+
      // 8-bit counter can count up to 255
-	reg [7:0] count = 0;
+	reg [9:0] count = 0;
+	reg outputSignal; 
+
+	assign PWM_output = outputSignal;
+
+	initial 
+	begin
+		outputSignal = 0;
+	end
+
 	always@(posedge clk)
 	begin
 		count <= count + 1;
 		// If count is less than duty, then output is 1.
 		// Otherwise, it's 0.
-		PWM_output <= (count < duty);
+		outputSignal <= (count < duty);
 	end
 endmodule
