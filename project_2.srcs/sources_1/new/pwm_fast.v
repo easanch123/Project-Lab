@@ -27,17 +27,15 @@
 // counter * 100. So for a duty cycle of 50%, the user would input 128 because
 // 128/255*100 is roughly 50%.
 // ===========================================================================
-module PWM(
+module pwm_fast(
 	input wire clk,
-	input wire [9:0] duty,
+	input wire [7:0] duty,
 	output wire PWM_output
 );
 
      // 8-bit counter can count up to 255
-	reg [10:0] count = 0;
+	reg [7:0] count = 0;
 	reg outputSignal; 
-	
-	localparam MAX = 3500;
 
 	assign PWM_output = outputSignal;
 
@@ -51,10 +49,6 @@ module PWM(
 		count <= count + 1;
 		// If count is less than duty, then output is 1.
 		// Otherwise, it's 0.
-		outputSignal <= (count < MAX);
-		if (count==MAX) 
-		begin
-		   count<=0;
-		end
+		outputSignal <= (count < duty);
 	end
 endmodule

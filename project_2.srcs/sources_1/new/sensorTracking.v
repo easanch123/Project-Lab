@@ -37,10 +37,12 @@ module sensorTracking(
     localparam pathBACK = 3'd04 ;
 
     reg [2:0] rPathCorrection;
-
+    reg [31:0] counter;
+    
     initial 
     begin
         rPathCorrection = pathSTOP;
+        counter = 0;
     end
 
     assign pathCorrection = rPathCorrection;
@@ -60,12 +62,30 @@ module sensorTracking(
                     end else if (metalInputs[0] && metalInputs[2])
                     begin
                         rPathCorrection <= pathSTOP;
+                        counter <=0;
                     end else if (~metalInputs[0] && ~metalInputs[2])
                     begin
                         rPathCorrection <= pathFORWARD ;
+                        counter <=0;
                     end
             end else begin
-                rPathCorrection <= pathSTOP;
+            
+                if (metalInputs[0] && ~metalInputs[1] && ~metalInputs[2])
+                begin
+                    rPathCorrection <= pathRIGHT;
+                    counter <=0;
+                end else if (~metalInputs[0] && ~metalInputs[1] && metalInputs[2])
+                begin
+                    rPathCorrection <= pathLEFT;
+                    counter <=0;
+                end else begin
+                    rPathCorrection <= pathBACK;
+                    counter <= counter + 1;
+                    
+                    if (counter>70_000_000) begin
+                    rPathCorrection <= pathSTOP;
+                end
+                end
             end
         end
     end

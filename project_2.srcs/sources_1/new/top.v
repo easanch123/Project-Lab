@@ -38,7 +38,7 @@ module top(
     output wire ENA, ENB, IN1, IN2, IN3, IN4, // used to control the motors]]
     
     output wire LED0,LED2, LED3, LED4,
-    output wire LED7, LED8, LED9
+    output wire LED7, LED8, LED9, LED11
     
     
     );
@@ -73,7 +73,8 @@ module top(
     assign LED8 = motorStop;
     
     assign LED9 = survivalMode;
-
+    
+  
     irTop IRSensorLogic (                   .clk(clk),
                                             .remoteSensor(remoteSensor),
                                             .remoteReady(remoteReady),

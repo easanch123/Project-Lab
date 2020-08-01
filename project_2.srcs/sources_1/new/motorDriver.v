@@ -26,8 +26,10 @@ module motorDriver(
     input wire signed [15:0] accelerationA,
     input wire signed [15:0] accelerationB,
     input wire accelerationReady,
+    input wire survivalMode,
     input wire motorStop,
     input wire [3:0] state,
+    
     output wire ENA, ENB, IN1, IN2, IN3, IN4
     );
 
@@ -40,15 +42,24 @@ module motorDriver(
     localparam SURVIVAL = 4'd0 ;
     localparam TRACKING = 4'd3;
     
+    localparam FORWARD_sensor = 4'd03;
+    localparam LEFT_sensor  = 4'd07 ; 
+    localparam RIGHT_sensor  = 4'd09 ; 
+    
+    localparam fastPWM = 200;
+    
     localparam MAXSPEED = 1000;
 
     wire A; // this is the right motor
     wire B; // this is the left motor
     
+//    wire A_fast;
+//    wire B_fast;
+    
     reg rENA, rENB, rIN1, rIN2, rIN3, rIN4;
 
-    wire  [15:0] dutyA;
-    wire  [15:0] dutyB;
+    wire [9:0] dutyA;
+    wire [9:0] dutyB;
     
     reg signed [31:0] rVelocityA;    
     reg signed [31:0] rVelocityB;     
@@ -56,8 +67,16 @@ module motorDriver(
     reg signed [15:0] rAccelerationA; 
     reg signed [15:0] rAccelerationB; 
 
+    reg unsigned [9:0] rDutyA;
+    reg unsigned [9:0] rDutyB;
+    
+    
     PWM PWM_A(clk, dutyA, A);
     PWM PWM_B(clk, dutyB, B);
+    
+//    pwm_fast fastPWM_A (clk, fastPWM, A_fast);
+//    pwm_fast fastPWM_B (clk, fastPWM, B_fast);
+    
     
     assign ENA = rENA;
     assign ENB = rENB;
@@ -66,14 +85,9 @@ module motorDriver(
     assign IN3 = rIN3; 
     assign IN4 = rIN4; 
 
-    reg unsigned [9:0] rDutyA;
-    reg unsigned [9:0] rDutyB;
-    
     assign dutyA = rDutyA;
     assign dutyB = rDutyB;
 
-
-    
     initial
     begin
         rVelocityA = 0;
@@ -90,10 +104,18 @@ module motorDriver(
     
     always @ (posedge clk) 
     begin
-    
-        rENA <= A;
-        rENB <= B;
         
+//        if (state==LEFT_sensor || state==RIGHT_sensor)
+//        begin
+//            rENA<=A_fast;
+//            rENB<=B_fast;
+//        end else begin
+            rENA<=A;
+            rENB<=B;
+      //  end
+        
+        
+
         
         if (accelerationReady)
         begin

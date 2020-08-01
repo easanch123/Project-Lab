@@ -98,52 +98,12 @@ module setState (
 
         if (~rStateReady)
         begin
-            if (rSurvivalMode && ~remoteReady) // in survival mode and we dont have remote being read
+            if (rSurvivalMode) // in survival mode and we dont have remote being read
             begin
-                case (pathCorrection)
-                    pathSTOP: 
-                    begin
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end  
+                if (remoteReady)
+                begin
                     
-                    pathFORWARD: 
-                    begin
-                        rState <= FORWARD;
-                        rStateReady <= 1;
-                    end
-
-                    pathLEFT: 
-                    begin
-                        rState <= LEFT ; 
-                        rStateReady <= 1;
-                    end  
-
-                    pathRIGHT: 
-                    begin
-                        rState <= RIGHT;
-                        rStateReady <= 1;
-                    end  
-
-                    pathBACK: 
-                    begin
-                        rState <= BACKWARD;
-                        rStateReady <= 1;
-                    end   
-                    
-                    default:
-                    begin
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end   
-                endcase
-            end 
-            
-
-            if (rSurvivalMode && remoteReady) // in survival mode and we read a remote
-            begin
-
-                case (remoteInputs)
+                    case (remoteInputs)
                     STOP: 
                     begin
                         rState <= STOP;
@@ -189,7 +149,74 @@ module setState (
                         
                 endcase
                 
+            end else begin
+            
+            case (pathCorrection)
+                    pathSTOP: 
+                    begin
+                        if (remoteReady)
+                        begin
+                             case (remoteInputs)
+                            FORWARD: 
+                            begin
+                                rState <= FORWARD;
+                                rStateReady <= 1;
+                            end
+
+                            LEFT: 
+                            begin
+                                rState <= LEFT ; 
+                                rStateReady <= 1;
+                            end  
+
+                            RIGHT: 
+                            begin
+                                rState <= RIGHT;
+                                rStateReady <= 1;
+                            end  
+
+                             endcase 
+                        end else begin
+                            rState <= STOP;
+                        end
+                        
+                        rStateReady <= 1;
+                    end  
+                    
+                    pathFORWARD: 
+                    begin
+                        rState <= FORWARD;
+                        rStateReady <= 1;
+                    end
+
+                    pathLEFT: 
+                    begin
+                        rState <= LEFT ; 
+                        rStateReady <= 1;
+                    end  
+
+                    pathRIGHT: 
+                    begin
+                        rState <= RIGHT;
+                        rStateReady <= 1;
+                    end  
+
+                    pathBACK: 
+                    begin
+                        rState <= BACKWARD;
+                        rStateReady <= 1;
+                    end   
+                    
+                    default:
+                    begin
+                        rState <= STOP;
+                        rStateReady <= 1;
+                    end   
+                endcase
             end
+                
+            end 
+            
             
             if (~rSurvivalMode && remoteReady) // not in survival mode and we read a remote
             begin

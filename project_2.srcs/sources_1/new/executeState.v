@@ -48,14 +48,14 @@ module executeState (
     localparam LEFT_sensor  = 4'd07 ; 
     localparam RIGHT_sensor  = 4'd09 ; 
     
-    localparam ACCELERATIONSPEED = 10;
-    localparam DECELERATIONSPEED = -10;
+    localparam ACCELERATIONSPEED = 1;
+    localparam DECELERATIONSPEED = -1;
     
-    localparam FASTSPEED_ACCEL = 200;
-    localparam FASTSPEED_DECCEL = -200;
+    localparam FASTSPEED_ACCEL = 50;
+    localparam FASTSPEED_DECCEL = -50;
     
-    localparam WAIT_VALUE = 1000000 ;
-    localparam WAIT_SURVIVAL = 1000000 ;
+    localparam WAIT_VALUE = 100 ;
+    localparam WAIT_SURVIVAL = 100_000 ;
     
     reg rAccelerationReady;
     reg signed [15:0] rAccelerationA;
@@ -63,7 +63,7 @@ module executeState (
 
     reg [31:0] rStateCount;
     reg [31:0] rActionCount;
-
+    
     reg rMotorStop;
 
     assign motorStop = rMotorStop;
