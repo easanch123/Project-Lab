@@ -37,7 +37,7 @@ module PWM(
 	reg [31:0] count = 0;
 	reg outputSignal; 
 	
-	localparam MAX = 2200;
+	localparam MAX = 2600;
 	
 	assign PWM_output = outputSignal;
 

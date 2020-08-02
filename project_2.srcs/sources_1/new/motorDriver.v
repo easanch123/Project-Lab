@@ -49,7 +49,7 @@ module motorDriver(
     
     localparam fastPWM = 200;
     
-    localparam MAXSPEED = 500;
+    localparam MAXSPEED = 400;
 
     wire A; // this is the right motor
     wire B; // this is the left motor
