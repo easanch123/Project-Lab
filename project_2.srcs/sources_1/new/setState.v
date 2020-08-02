@@ -98,88 +98,12 @@ module setState (
 
         if (~rStateReady)
         begin
-            if (rSurvivalMode) // in survival mode and we dont have remote being read
+            if (rSurvivalMode && ~remoteReady) // in survival mode and we dont have remote being read
             begin
-                if (remoteReady)
-                begin
-                    
-                    case (remoteInputs)
-                    STOP: 
-                    begin
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end  
-                    
-                    FORWARD: 
-                    begin
-                        rState <= FORWARD;
-                        rStateReady <= 1;
-                    end
-
-                    LEFT: 
-                    begin
-                        rState <= LEFT ; 
-                        rStateReady <= 1;
-                    end  
-
-                    RIGHT: 
-                    begin
-                        rState <= RIGHT;
-                        rStateReady <= 1;
-                    end  
-
-                    BACKWARD: 
-                    begin
-                        rState <= BACKWARD;
-                        rStateReady <= 1;
-                    end   
-
-                    SURVIVAL: 
-                    begin
-                        rState <= SURVIVAL;
-                        rStateReady <= 1;
-                        rSurvivalMode <= 0;
-                    end   
-                    
-                    default:
-                    begin
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end   
-                        
-                endcase
-                
-            end else begin
-            
-            case (pathCorrection)
+                case (pathCorrection)
                     pathSTOP: 
                     begin
-                        if (remoteReady)
-                        begin
-                             case (remoteInputs)
-                            FORWARD: 
-                            begin
-                                rState <= FORWARD;
-                                rStateReady <= 1;
-                            end
-
-                            LEFT: 
-                            begin
-                                rState <= LEFT ; 
-                                rStateReady <= 1;
-                            end  
-
-                            RIGHT: 
-                            begin
-                                rState <= RIGHT;
-                                rStateReady <= 1;
-                            end  
-
-                             endcase 
-                        end else begin
-                            rState <= STOP;
-                        end
-                        
+                        rState <= STOP;
                         rStateReady <= 1;
                     end  
                     
@@ -214,61 +138,51 @@ module setState (
                     end   
                 endcase
             end
-                
-            end 
-            
-            
-            if (~rSurvivalMode && remoteReady) // not in survival mode and we read a remote
+
+            if (remoteReady)
             begin
-                
                 case (remoteInputs)
                     STOP: 
                     begin
                         rState <= STOP;
                         rStateReady <= 1;
-                        rSurvivalMode <= 0;
                     end  
                     
                     FORWARD: 
                     begin
                         rState <= FORWARD;
                         rStateReady <= 1;
-                        rSurvivalMode <= 0;
                     end
 
                     LEFT: 
                     begin
                         rState <= LEFT ; 
                         rStateReady <= 1;
-                        rSurvivalMode <= 0;
                     end  
 
                     RIGHT: 
                     begin
                         rState <= RIGHT;
                         rStateReady <= 1;
-                        rSurvivalMode <= 0;
                     end  
 
                     BACKWARD: 
                     begin
                         rState <= BACKWARD;
                         rStateReady <= 1;
-                        rSurvivalMode <= 0;
                     end   
 
                     SURVIVAL: 
                     begin
                         rState <= SURVIVAL;
                         rStateReady <= 1;
-                        rSurvivalMode <= 1;
+                        rSurvivalMode <= (rSurvivalMode) ? (0) : (1);
                     end   
-
+                    
                     default:
                     begin
                         rState <= STOP;
                         rStateReady <= 1;
-                        rSurvivalMode <= 0;
                     end   
                         
                 endcase

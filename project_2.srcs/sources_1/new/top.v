@@ -73,6 +73,8 @@ module top(
     assign LED8 = motorStop;
     
     assign LED9 = survivalMode;
+
+    wire isTurn;
     
   
     irTop IRSensorLogic (                   .clk(clk),
@@ -129,7 +131,8 @@ module top(
                                             
                                             .accelerationA(accelerationA),
                                             .accelerationB(accelerationB),
-                                            .accelerationReady(accelerationReady)
+                                            .accelerationReady(accelerationReady),
+                                            .isTurn(isTurn)
     );
     
     
@@ -148,7 +151,8 @@ module top(
                                             .accelerationReady(accelerationReady),
 
                                             .motorStop(motorStop),
-                                            .state(state)
+                                            .state(state),
+                                            .isTurn(isTurn)
     );
     
     

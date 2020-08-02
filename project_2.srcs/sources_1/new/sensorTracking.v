@@ -56,9 +56,11 @@ module sensorTracking(
                     if (metalInputs[0] && ~metalInputs[2]) // if the middle and the left is activated, then we need to turn right
                     begin
                         rPathCorrection <= pathRIGHT;
+                        counter <=0;
                     end else if (~metalInputs[0] && metalInputs[2])
                     begin
                         rPathCorrection <= pathLEFT ;
+                        counter <=0;
                     end else if (metalInputs[0] && metalInputs[2])
                     begin
                         rPathCorrection <= pathSTOP;
@@ -70,22 +72,12 @@ module sensorTracking(
                     end
             end else begin
             
-                if (metalInputs[0] && ~metalInputs[1] && ~metalInputs[2])
-                begin
-                    rPathCorrection <= pathRIGHT;
-                    counter <=0;
-                end else if (~metalInputs[0] && ~metalInputs[1] && metalInputs[2])
-                begin
-                    rPathCorrection <= pathLEFT;
-                    counter <=0;
-                end else begin
                     rPathCorrection <= pathBACK;
                     counter <= counter + 1;
                     
                     if (counter>70_000_000) begin
                     rPathCorrection <= pathSTOP;
-                end
-                end
+                    end
             end
         end
     end

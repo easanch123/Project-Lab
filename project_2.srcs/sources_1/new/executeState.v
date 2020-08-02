@@ -30,7 +30,8 @@ module executeState (
     output wire motorReady,
     output wire signed [15:0] accelerationA,
     output wire signed [15:0] accelerationB,
-    output wire accelerationReady
+    output wire accelerationReady,
+    output wire isTurn
     
     );
    
@@ -51,11 +52,14 @@ module executeState (
     localparam ACCELERATIONSPEED = 1;
     localparam DECELERATIONSPEED = -1;
     
-    localparam FASTSPEED_ACCEL = 50;
-    localparam FASTSPEED_DECCEL = -50;
+    localparam FASTSPEED_ACCEL = 15;
+    localparam FASTSPEED_DECCEL = -15;
     
-    localparam WAIT_VALUE = 100 ;
-    localparam WAIT_SURVIVAL = 100_000 ;
+//    localparam WAIT_VALUE = 100 ;
+//    localparam WAIT_SURVIVAL = 100_000 ;
+    
+    localparam WAIT_VALUE = 1 ;
+    localparam WAIT_SURVIVAL = 1 ;
     
     reg rAccelerationReady;
     reg signed [15:0] rAccelerationA;
@@ -65,6 +69,7 @@ module executeState (
     reg [31:0] rActionCount;
     
     reg rMotorStop;
+    reg rIsTurn;
 
     assign motorStop = rMotorStop;
     assign motorReady = ~rAccelerationReady;
@@ -72,6 +77,7 @@ module executeState (
     assign accelerationA = rAccelerationA;
     assign accelerationB = rAccelerationB;
     assign accelerationReady = rAccelerationReady;
+    assign isTurn = rIsTurn;
  
     initial 
     begin
@@ -81,16 +87,11 @@ module executeState (
         rStateCount = 0;
         rActionCount = 0;
         rMotorStop = 1;
+        rIsTurn = 0;
     end
 
     always @ (posedge clk) 
     begin
-
-        // if the sensor input says that all three are active and that we are in survival mode, then we need to turn on the register for us to stop at once
-        if (state==STOP)
-        begin
-            rMotorStop <= 1;
-        end
 
         if (stateReady)
             begin
@@ -105,6 +106,7 @@ module executeState (
                         rActionCount <= WAIT_VALUE;
                         rStateCount<= 0;
                         rMotorStop<=0;
+                        rIsTurn<= 0;
                     end
                     LEFT_sensor:
                     begin
@@ -114,6 +116,7 @@ module executeState (
                         rActionCount <= WAIT_VALUE;
                         rStateCount<= 0;
                         rMotorStop<=0;
+                        rIsTurn<= 1;
                     end
                     RIGHT_sensor:
                     begin
@@ -123,6 +126,7 @@ module executeState (
                         rActionCount <= WAIT_VALUE;
                         rStateCount<= 0;
                         rMotorStop<=0;
+                        rIsTurn<= 1;
                     end
                     
                     STOP: 
@@ -133,6 +137,7 @@ module executeState (
                         rActionCount <= WAIT_SURVIVAL;
                         rStateCount<= 0;
                         rMotorStop<=1;
+                        rIsTurn<= 0;
                     end  
     
                     FORWARD: 
@@ -143,6 +148,7 @@ module executeState (
                         rActionCount <= WAIT_SURVIVAL;
                         rStateCount<= 0;
                         rMotorStop<=0;
+                        rIsTurn<= 0;
                     end
     
                     LEFT: 
@@ -153,6 +159,7 @@ module executeState (
                         rActionCount <= WAIT_SURVIVAL;
                         rStateCount<= 0;
                         rMotorStop<=0;
+                        rIsTurn<= 1;
                     end  
     
                     RIGHT: 
@@ -163,6 +170,7 @@ module executeState (
                         rActionCount <= WAIT_SURVIVAL;
                         rStateCount<= 0;
                         rMotorStop<=0;
+                        rIsTurn<= 1;
                     end  
     
                     BACKWARD: 
@@ -173,6 +181,7 @@ module executeState (
                         rActionCount <= WAIT_SURVIVAL;
                         rStateCount<= 0;
                         rMotorStop<=0;
+                        rIsTurn<= 0;
                     end    
     
                     default:

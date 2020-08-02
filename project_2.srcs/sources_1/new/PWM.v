@@ -34,11 +34,11 @@ module PWM(
 );
 
      // 8-bit counter can count up to 255
-	reg [10:0] count = 0;
+	reg [31:0] count = 0;
 	reg outputSignal; 
 	
-	localparam MAX = 3500;
-
+	localparam MAX = 2200;
+	
 	assign PWM_output = outputSignal;
 
 	initial 
@@ -51,7 +51,7 @@ module PWM(
 		count <= count + 1;
 		// If count is less than duty, then output is 1.
 		// Otherwise, it's 0.
-		outputSignal <= (count < MAX);
+		outputSignal <= (count < duty);
 		if (count==MAX) 
 		begin
 		   count<=0;

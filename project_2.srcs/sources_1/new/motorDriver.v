@@ -29,6 +29,7 @@ module motorDriver(
     input wire survivalMode,
     input wire motorStop,
     input wire [3:0] state,
+    input wire isTurn,
     
     output wire ENA, ENB, IN1, IN2, IN3, IN4
     );
@@ -48,13 +49,13 @@ module motorDriver(
     
     localparam fastPWM = 200;
     
-    localparam MAXSPEED = 1000;
+    localparam MAXSPEED = 500;
 
     wire A; // this is the right motor
     wire B; // this is the left motor
     
-//    wire A_fast;
-//    wire B_fast;
+   wire A_fast;
+   wire B_fast;
     
     reg rENA, rENB, rIN1, rIN2, rIN3, rIN4;
 
@@ -74,12 +75,12 @@ module motorDriver(
     PWM PWM_A(clk, dutyA, A);
     PWM PWM_B(clk, dutyB, B);
     
-//    pwm_fast fastPWM_A (clk, fastPWM, A_fast);
-//    pwm_fast fastPWM_B (clk, fastPWM, B_fast);
+   pwm_fast fastPWM_A (clk, fastPWM, A_fast);
+   pwm_fast fastPWM_B (clk, fastPWM, B_fast);
     
     
-    assign ENA = rENA;
-    assign ENB = rENB;
+    assign ENA = (isTurn) ? (A_fast) : (A);
+    assign ENB = (isTurn) ? (B_fast) : (B);
     assign IN1 = rIN1;
     assign IN2 = rIN2;
     assign IN3 = rIN3; 
@@ -105,20 +106,9 @@ module motorDriver(
     always @ (posedge clk) 
     begin
         
-//        if (state==LEFT_sensor || state==RIGHT_sensor)
-//        begin
-//            rENA<=A_fast;
-//            rENB<=B_fast;
-//        end else begin
-            rENA<=A;
-            rENB<=B;
-      //  end
-        
-        
-
-        
         if (accelerationReady)
         begin
+
             if (rAccelerationA!=accelerationA) 
             begin
                 rAccelerationA <= accelerationA;
@@ -183,12 +173,10 @@ module motorDriver(
             
         if (motorStop)
         begin
-            rENA<=0;
             rVelocityA <= 0;
             rAccelerationA<=0;
             rDutyB<=0;
             rDutyA<=0;
-            rENB <=0;
             rVelocityB <= 0;
             rAccelerationB<=0;
         end
