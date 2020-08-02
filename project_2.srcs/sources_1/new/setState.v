@@ -40,7 +40,7 @@ module setState (
        input wire remoteReady,
        
        input wire [2:0] pathCorrection,
-       input wire motorStop,
+       input wire pathReady,
 
        output wire survivalMode,
        output wire [3:0] state,
@@ -48,7 +48,7 @@ module setState (
        
     );
 
-    // User-Input States
+    // User-Inputs
     localparam FORWARD = 4'd02 ;
     localparam STOP = 4'd05 ; 
     localparam LEFT = 4'd04 ;
@@ -56,13 +56,14 @@ module setState (
     localparam BACKWARD = 4'd08 ;
     localparam SURVIVAL = 4'd0 ;
     
-//    localparam TRACKING = 4'd3;
-    
+    // Sensor Inputs
     localparam pathFORWARD = 3'd0 ;
     localparam pathLEFT = 3'd1 ;
     localparam pathRIGHT = 3'd2 ;
     localparam pathSTOP = 3'd03 ;
     localparam pathBACK = 3'd04 ;
+    
+    // Output States
 
     reg [3:0] rState ;
     reg rStateReady;
@@ -83,9 +84,9 @@ module setState (
 
     initial 
     begin
-        rState = 5;
+        rState = STOP;
         rStateReady = 0;
-        rSurvivalMode = 1;
+        rSurvivalMode = 0;
     end
 
     always @ (posedge clk) 
@@ -98,94 +99,149 @@ module setState (
 
         if (~rStateReady)
         begin
-            if (rSurvivalMode && ~remoteReady) // in survival mode and we dont have remote being read
+            if (rSurvivalMode) // in survival mode and we dont have remote being read
             begin
-                case (pathCorrection)
-                    pathSTOP: 
-                    begin
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end  
-                    
-                    pathFORWARD: 
-                    begin
-                        rState <= FORWARD;
-                        rStateReady <= 1;
-                    end
-
-                    pathLEFT: 
-                    begin
-                        rState <= LEFT ; 
-                        rStateReady <= 1;
-                    end  
-
-                    pathRIGHT: 
-                    begin
-                        rState <= RIGHT;
-                        rStateReady <= 1;
-                    end  
-
-                    pathBACK: 
-                    begin
-                        rState <= BACKWARD;
-                        rStateReady <= 1;
-                    end   
-                    
-                    default:
-                    begin
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end   
-                endcase
+                if (pathReady && ~remoteReady) begin
+                    case (pathCorrection)
+                        pathSTOP: 
+                        begin
+                            rState <= STOP;
+                            rStateReady <= 1;
+                        end  
+                        
+                        pathFORWARD: 
+                        begin
+                            rState <= FORWARD;
+                            rStateReady <= 1;
+                        end
+    
+                        pathLEFT: 
+                        begin
+                            rState <= LEFT ; 
+                            rStateReady <= 1;
+                        end  
+    
+                        pathRIGHT: 
+                        begin
+                            rState <= RIGHT;
+                            rStateReady <= 1;
+                        end  
+    
+                        pathBACK: 
+                        begin
+                            rState <= BACKWARD;
+                            rStateReady <= 1;
+                        end   
+                        
+                        default:
+                        begin
+                            rState <= STOP;
+                            rStateReady <= 1;
+                        end   
+                    endcase
+                end 
+                
+                if (remoteReady)
+                begin
+                    case (remoteInputs)
+                        STOP: 
+                        begin
+                            rState <= STOP;
+                            rStateReady <= 1;
+                        end  
+                        
+                        FORWARD: 
+                        begin
+                            rState <= FORWARD;
+                            rStateReady <= 1;
+                        end
+    
+                        LEFT: 
+                        begin
+                            rState <= LEFT ; 
+                            rStateReady <= 1;
+                        end  
+    
+                        RIGHT: 
+                        begin
+                            rState <= RIGHT;
+                            rStateReady <= 1;
+                        end  
+    
+                        BACKWARD: 
+                        begin
+                            rState <= BACKWARD;
+                            rStateReady <= 1;
+                        end   
+    
+                        SURVIVAL: 
+                        begin
+                            rState <= SURVIVAL;
+                            rStateReady <= 1;
+                            rSurvivalMode <= (rSurvivalMode) ? (0) : (1);
+                        end   
+                        
+                        default:
+                        begin
+                            rState <= STOP;
+                            rStateReady <= 1;
+                        end   
+                            
+                    endcase
+                end
+                
             end
 
-            if (remoteReady)
+            if (~rSurvivalMode)
             begin
-                case (remoteInputs)
-                    STOP: 
-                    begin
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end  
-                    
-                    FORWARD: 
-                    begin
-                        rState <= FORWARD;
-                        rStateReady <= 1;
-                    end
-
-                    LEFT: 
-                    begin
-                        rState <= LEFT ; 
-                        rStateReady <= 1;
-                    end  
-
-                    RIGHT: 
-                    begin
-                        rState <= RIGHT;
-                        rStateReady <= 1;
-                    end  
-
-                    BACKWARD: 
-                    begin
-                        rState <= BACKWARD;
-                        rStateReady <= 1;
-                    end   
-
-                    SURVIVAL: 
-                    begin
-                        rState <= SURVIVAL;
-                        rStateReady <= 1;
-                        rSurvivalMode <= (rSurvivalMode) ? (0) : (1);
-                    end   
-                    
-                    default:
-                    begin
-                        rState <= STOP;
-                        rStateReady <= 1;
-                    end   
+                if (remoteReady)
+                begin
+                    case (remoteInputs)
+                        STOP: 
+                        begin
+                            rState <= STOP;
+                            rStateReady <= 1;
+                        end  
                         
-                endcase
+                        FORWARD: 
+                        begin
+                            rState <= FORWARD;
+                            rStateReady <= 1;
+                        end
+    
+                        LEFT: 
+                        begin
+                            rState <= LEFT ; 
+                            rStateReady <= 1;
+                        end  
+    
+                        RIGHT: 
+                        begin
+                            rState <= RIGHT;
+                            rStateReady <= 1;
+                        end  
+    
+                        BACKWARD: 
+                        begin
+                            rState <= BACKWARD;
+                            rStateReady <= 1;
+                        end   
+    
+                        SURVIVAL: 
+                        begin
+                            rState <= SURVIVAL;
+                            rStateReady <= 1;
+                            rSurvivalMode <= (rSurvivalMode) ? (0) : (1);
+                        end   
+                        
+                        default:
+                        begin
+                            rState <= STOP;
+                            rStateReady <= 1;
+                        end   
+                            
+                    endcase
+                end
             end
         end
     end

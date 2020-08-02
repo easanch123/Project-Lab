@@ -27,7 +27,6 @@ module motorDriver(
     input wire signed [15:0] accelerationB,
     input wire accelerationReady,
     input wire survivalMode,
-    input wire motorStop,
     input wire [3:0] state,
     input wire isTurn,
     
@@ -54,8 +53,8 @@ module motorDriver(
     wire A; // this is the right motor
     wire B; // this is the left motor
     
-   wire A_fast;
-   wire B_fast;
+    wire A_fast;
+    wire B_fast;
     
     reg rENA, rENB, rIN1, rIN2, rIN3, rIN4;
 
@@ -75,8 +74,8 @@ module motorDriver(
     PWM PWM_A(clk, dutyA, A);
     PWM PWM_B(clk, dutyB, B);
     
-   pwm_fast fastPWM_A (clk, fastPWM, A_fast);
-   pwm_fast fastPWM_B (clk, fastPWM, B_fast);
+    pwm_fast fastPWM_A (clk, fastPWM, A_fast);
+    pwm_fast fastPWM_B (clk, fastPWM, B_fast);
     
     
     assign ENA = (isTurn) ? (A_fast) : (A);
@@ -120,66 +119,61 @@ module motorDriver(
             end
         end
         
-        if (~motorStop)
-        begin
         if (rVelocityA>=0)
-            begin
-                rIN1<=1;
-                rIN2<=0; 
-                if (rAccelerationA<0)
-                begin
-                    rVelocityA <= rVelocityA+rAccelerationA;
-                end else if (rVelocityA < MAXSPEED) begin
-                    rVelocityA <= rVelocityA+rAccelerationA;
-                end
-                rDutyA <= rVelocityA;
-            end else begin
-                rIN1<=0;
-                rIN2<=1;
-                if (rAccelerationA>0)
-                begin
-                    rVelocityA <= rVelocityA+rAccelerationA;
-                end else if (-rVelocityA < MAXSPEED) begin
-                    rVelocityA <= rVelocityA+rAccelerationA;
-                end
-                rDutyA <= -rVelocityA ;
-            end
-            
-            if (rVelocityB>=0)
-            begin
-                rIN3<=0;
-                rIN4<=1;
-                if (rAccelerationB<0)
-                begin
-                    rVelocityB <= rVelocityB+rAccelerationB;
-                end else if (rVelocityB < MAXSPEED) begin
-                    rVelocityB <= rVelocityB+rAccelerationB;
-                end
-                rDutyB <= rVelocityB;
-            end else begin
-                rIN3<=1;
-                rIN4<=0;
-                rDutyB <= -rVelocityB;
-                if (rAccelerationB>0)
-                begin
-                    rVelocityB <= rVelocityB+rAccelerationB;
-                end else if (-rVelocityB < MAXSPEED) begin
-                    rVelocityB <= rVelocityB+rAccelerationB;
-                end
-        end
-
-    end
-
-            
-        if (motorStop)
         begin
-            rVelocityA <= 0;
-            rAccelerationA<=0;
-            rDutyB<=0;
-            rDutyA<=0;
-            rVelocityB <= 0;
-            rAccelerationB<=0;
+            rIN1<=1;
+            rIN2<=0; 
+            if (rAccelerationA<0)
+            begin
+                rVelocityA <= rVelocityA+rAccelerationA;
+            end else if (rAccelerationA==0) begin
+                rVelocityA <= 0;
+            end else if (rVelocityA < MAXSPEED) begin
+                rVelocityA <= rVelocityA+rAccelerationA;
+            end
+            rDutyA <= rVelocityA;
+        end else begin
+            rIN1<=0;
+            rIN2<=1;
+            if (rAccelerationA>0)
+            begin
+                rVelocityA <= rVelocityA+rAccelerationA;
+            end else if (rAccelerationA==0) begin
+                rVelocityA<=0;
+            end else if (-rVelocityA < MAXSPEED) begin
+                rVelocityA <= rVelocityA+rAccelerationA;
+            end
+            rDutyA <= -rVelocityA ;
         end
+        
+        if (rVelocityB>=0)
+        begin
+            rIN3<=0;
+            rIN4<=1;
+            if (rAccelerationB<0)
+            begin
+                rVelocityB <= rVelocityB+rAccelerationB;
+            end else if (rAccelerationB==0) begin
+                rVelocityB <= 0;
+            end else if (rVelocityB < MAXSPEED) begin
+                rVelocityB <= rVelocityB+rAccelerationB;
+            end
+            rDutyB <= rVelocityB;
+        end else begin
+            rIN3<=1;
+            rIN4<=0;
+            rDutyB <= -rVelocityB;
+            if (rAccelerationB>0)
+            begin
+                rVelocityB <= rVelocityB+rAccelerationB;
+            end else if (rAccelerationB==0) begin
+                rVelocityB<= 0;
+            end else if (-rVelocityB < MAXSPEED) begin
+                rVelocityB <= rVelocityB+rAccelerationB;
+            end
+        end
+
+ 
         
     
    end

@@ -98,6 +98,17 @@ module executeState (
             if (~rAccelerationReady) 
             begin
                 case (state)
+                    SURVIVAL:
+                    begin
+                        rAccelerationA <= 0 ;
+                        rAccelerationB <= 0 ; 
+                        rAccelerationReady <= 1;
+                        rActionCount <= WAIT_VALUE;
+                        rStateCount<= 0;
+                        rMotorStop<=0;
+                        rIsTurn<= 0;
+                    end
+                    
                     FORWARD_sensor:
                     begin
                         rAccelerationA <= ACCELERATIONSPEED;

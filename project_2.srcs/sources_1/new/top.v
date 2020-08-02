@@ -65,6 +65,8 @@ module top(
     
     wire [2:0] pathCorrection; 
     
+    wire pathReady;
+    
     assign LED2 = metalInputs[0];
     assign LED3 = metalInputs[1];
     assign LED4 = metalInputs[2];
@@ -76,8 +78,14 @@ module top(
 
     wire isTurn;
     
+    wire clk100khz;
+    
+    
+    newClk #(500) clkNew (                  .FPGAclk(clk), 
+                                            .signal(clk100khz));
+    
   
-    irTop IRSensorLogic (                   .clk(clk),
+    irTop IRSensorLogic (                   .clk100khz(clk100khz),
                                             .remoteSensor(remoteSensor),
                                             .remoteReady(remoteReady),
                                             .remoteInputs(remoteInputs),
@@ -86,7 +94,6 @@ module top(
     );
     
     cleanInputs inputCleaning   (           .clk(clk),
-    
                                             .lSensor(lSensor),
                                             .mSensor(mSensor),
                                             .rSensor(rSensor),
@@ -96,20 +103,18 @@ module top(
     sensorTracking pathTracking (           .clk(clk),
                                             .metalInputs(metalInputs), // [2:0]
                                             .pathCorrection(pathCorrection), // [1:0]
-                                            .survivalMode(survivalMode),
-                                            .motorStop(motorStop)
+                                            .pathReady(pathReady),
+                                            .survivalMode(survivalMode)
 );
-    
-    
     
     setState    stateDecision      (        .clk(clk),
                                             .remoteInputs(remoteInputs),
                                             .remoteReady(remoteReady),
                                             .pathCorrection(pathCorrection),
+                                            .pathReady(pathReady),
                                             .survivalMode(survivalMode),
                                             .state(state),
-                                            .stateReady(stateReady),
-                                            .motorStop(motorStop)
+                                            .stateReady(stateReady)
     );
     
     sevenSegmentDisplay sevenSegment (      .clk(clk),
@@ -149,8 +154,7 @@ module top(
                                             .accelerationA(accelerationA),
                                             .accelerationB(accelerationB),
                                             .accelerationReady(accelerationReady),
-
-                                            .motorStop(motorStop),
+                                            
                                             .state(state),
                                             .isTurn(isTurn)
     );

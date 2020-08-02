@@ -2,8 +2,7 @@
 `default_nettype none
 
 module irTop(
-
-    input wire clk,
+    input wire clk100khz,
     input wire remoteSensor,
     output wire remoteReady,
     output wire [3:0] remoteInputs,
@@ -15,14 +14,9 @@ module irTop(
 
     wire remoteInput; // This is the IR input that we want to be reading
 
-    wire clk100khz; // Clock used for the IR input
-
     wire ready;
 
     wire [11:0] remoteReading;
-
-    newClk #(500) clkNew (          .FPGAclk(clk), 
-                                    .signal(clk100khz));
 
     d_ff d_ff_irSensor1 (           .inpSignal(remoteSensor), 
                                     .clk(clk100khz), 
